@@ -9,7 +9,6 @@
  * Programa para começar a testar o arduino +
  * MAX485 - transceiver para RS-485
 */
-//Test_github_pedro
 
 #include <avr/io.h>
 #include <stdlib.h>
