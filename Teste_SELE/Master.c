@@ -42,6 +42,7 @@ int send_Want2talk(uint8_t n_slave){
 	trama[0] = n_slave;
 	trama[1] = 0x03;
 
+	PORTD |= (1 << controlo_MAX485);
 	write_string(trama);
 	return 0;
 }
@@ -49,6 +50,8 @@ int send_Want2talk(uint8_t n_slave){
 int read_Response(uint8_t n_slave){
 	uint8_t* trama_R;
 	trama_R = (uint8_t *) malloc(2);
+
+	PORTD = PORTD & ~(1<<controlo_MAX485);
 
 	if(read_string(trama_R) == 1){ //acho que é 1 para estar tudo bem
 		if(trama_R[0] == n_slave){
