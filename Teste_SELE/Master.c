@@ -13,7 +13,7 @@
 #include <avr/io.h>
 #include <stdlib.h>
 #include <avr/interrupt.h>
-//#include <util/delay.h>
+#include <util/delay.h>
 //#include "serial_port.h"
 //#include <math.h>
 //#include <string.h>
@@ -26,20 +26,26 @@
 // Caution: erroneous result if F_CPU is not correctly defined
 #define baudgen ((F_CPU/(16*baud))-1)  //baud divider
 
-#define controlo_MAX485 PD4 //Quando está a 1, funciona como sender. Quando está a zero funciona como receiver.
+#define controlo_MAX485 PD2 //Quando está a 1, funciona como sender. Quando está a zero funciona como receiver.
 
 void init_io(void);
 
 int main(void){
 
 	init_io();
+	while(1){
+		PORTD = PORTD | 0b00000100;
+		_delay_ms(1000);
+		PORTD = PORTD & ~0b00000100;
+		_delay_ms(1000);
+	}
 
 }
 
 void init_io(void){
 
-	DDRD |= (1 << controlo_MAX485);
-
+	//DDRD |= (1 << controlo_MAX485);
+	DDRD = DDRD | 0b00000100; //Definir pino como saída PD2
 }
 
 
