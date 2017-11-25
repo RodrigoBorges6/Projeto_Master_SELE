@@ -38,7 +38,7 @@ int main(void){
 
 void init_io(void){
 
-	DDRD |= (1 << controlo_MAX485);
+	DDRD |= (1 << controlo_MAX485); //definir pino PD2 como uma saída
 
 }
 
