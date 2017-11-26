@@ -12,7 +12,6 @@
 
 #include "Master_functions.h"
 
-
 int main(void){
 
 	int check_status;
