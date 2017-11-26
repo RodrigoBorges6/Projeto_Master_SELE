@@ -18,16 +18,16 @@ int main(void){
 	init_io();
 	init_RS485();
 	RS485_sendingMode();
-	if(send_Want2talk(1) == 0){
+	if(0 == send_Want2talk(1)){
 		RS485_receivingMode();
 		check_status = read_Response(1);
-		if(check_status == 0){
+		if(0 == check_status){
 			printf("Comunicação com escravo 1 concluída \n");
 		}
-		else if(check_status == -1){
+		else if(-1 == check_status){
 			printf("Resposta de slave errado \n");
 		}
-		else if(check_status == -2){
+		else if(-2 == check_status){
 			printf("Segundo valor da trama_R não coerente \n");
 		}
 		else{

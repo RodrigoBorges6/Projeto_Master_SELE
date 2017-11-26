@@ -86,13 +86,13 @@ int read_Response(uint8_t n_slave){
 		trama_R[i] = RS485_receiveByte();
 	}
 
-	if(trama_R[0] == n_slave){
-		if(trama_R[1] == 0x00){
+	if(n_slave == trama_R[0]){
+		if(0x00 == trama_R[1]){
 			//Não quer falar
 			printf("Escravo não quer falar \n");
 			return 0;
 		}
-		else if(trama_R[1] == 0x01){
+		else if(0x01 == trama_R[1]){
 			//Quer falar
 			printf("Escravo quer falar \n");
 			return 0;
