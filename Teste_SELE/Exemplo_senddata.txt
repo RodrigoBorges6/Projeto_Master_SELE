@@ -1,0 +1,69 @@
+#define F_CPU	11059200
+#include <avr/io.h>
+#include <util/delay.h>
+// port 0
+#define BAUD485	9600
+#define BRC485		((F_CPU/16/BAUD485) -1)
+// yellow led - status
+#define LED1 (1 << PA0);
+#define LED1_ON     PORTA &= ~LED1; // LED to VCC
+#define LED1_OFF    PORTA |=  LED1; // LED to VCC
+#define LED1_TOGGLE PORTA ^=  LED1;
+//--------------------------------------------------------------
+void RS485_init()
+{
+	/* Set baud rate */
+	UBRR0H = (unsigned char)(BRC485 >> 8);
+	UBRR0L = (unsigned char) BRC485;
+	/* Just in case ;) */
+	UCSR0A = 0;
+	/* receiver and transmitter */
+	UCSR0B = (1 << TXEN0);//|(1<<RXEN0);
+	/* Set frame format: 8data, 1stop bit */
+	UCSR0C = (1 << URSEL0)|(3 << UCSZ00);//(1<<USBS0)|
+    // direction
+	DDRD |= (1 << PD2);
+	_delay_ms(500);
+}
+//--------------------------------------------------------------
+// RS485 nadajnik
+void RS485_sendingMode()
+{
+	PORTD |=  0x04; //OFF
+	LED1_ON;
+}
+// RS485 odbiornik
+void RS485_receivingMode()
+{
+	PORTD &= ~0x04; //ON
+	LED1_OFF;
+}
+void RS485_sendByte(unsigned char temp)
+{
+	///* Wait for empty transmit buffer */
+	while ( !(UCSR0A & (1 << UDRE0)) ) ;
+	/* Put data into buffer, sends the data */
+	UDR0 = temp;
+}
+unsigned char RS485_receiveByte( void )
+{
+	/* Wait for data to be received */
+	while ( !(UCSR0A & (1 << RXC0)) ) ;
+	/* Get and return received data from buffer */
+	return UDR0;
+}
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+int main(void)
+{
+	DDRA |= (1 << PA0); // direction yellow LED
+	//
+	RS485_init();
+	RS485_sendingMode();
+	_delay_ms(500);
+	while (1)
+	{
+		LED1_TOGGLE;
+		RS485_sendByte(0x0f);
+	}
+}
