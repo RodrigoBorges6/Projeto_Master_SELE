@@ -28,7 +28,11 @@
 #define baudgen ((F_CPU/(16*baud))-1)  //baud divider
 
 #define controlo_MAX485 PD2 //Quando está a 1, funciona como sender. Quando está a zero funciona como receiver.
+
+
 //----------------------------------------------------------------------------------
+
+
 void init_io(void){
 
 	DDRD |= (1 << controlo_MAX485);
