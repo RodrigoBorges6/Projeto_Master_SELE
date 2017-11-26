@@ -31,7 +31,6 @@
 //----------------------------------------------------------------------------------
 void init_io(void){
 
-<<<<<<< HEAD
 	DDRD |= (1 << controlo_MAX485);
 	//DDRD = DDRD | 0b00000100; //Definir pino como saída PD2
 }
@@ -72,9 +71,9 @@ int read_Response(uint8_t n_slave){
 		else return -2;
 	}
 	else return -1;
-=======
+
 	DDRD |= (1 << controlo_MAX485); //definir pino PD2 como uma saída
->>>>>>> branch 'master' of https://github.com/RodrigoBorges6/Projeto_Master_SELE.git
+
 
 }
 
