@@ -21,33 +21,33 @@ void init_RS485()
 	UBRR0L = (unsigned char) baudgen;		//lower part of baudrate value
 
 	/* Just in case ;) */
-	UCSR0A = 0; //registo de flags pagina 192
+	//UCSR0A = 0; //registo de flags pagina 192
 
 	/* receiver and transmitter enable pagina 193 */
 	UCSR0B = (1 << TXEN0)|(1 << RXEN0);
 
-	/* Set frame format pagina 194: 8data, 1stop bit sem paridade*/
-	UCSR0C = (3 << UCSZ00);//(1<<USBS0)seria para 2 stop bits
+	/* Set frame format pagina 194: 9data, 1stop bit sem paridade*/
+	UCSR0C = (7 << UCSZ00);//(1<<USBS0)seria para 2 stop bits
 
     // direction
 	DDRD |= (1 << controlo_MAX485);//Definir pino como saída PD2
-	_delay_ms(500); // ???
-}
-
-void RS485_sendingMode()
-{
-	MAX485_Sending;
-	LED_MAX485_ON;
+	//_delay_ms(500); // ???
 }
 
 // RS485
+void RS485_sendingMode()
+{
+	MAX485_Sending;
+	//LED_MAX485_ON;
+}
+
 void RS485_receivingMode()
 {
 	MAX485_Receiving;
-	LED_MAX485_OFF;
+	//LED_MAX485_OFF;
 }
 
-void RS485_sendByte(unsigned char temp)
+void RS485_sendByte(uint8_t temp)
 {
 	///* Wait for empty transmit buffer */
 	while ( !(UCSR0A & (1 << UDRE0)) ) ;
@@ -55,7 +55,7 @@ void RS485_sendByte(unsigned char temp)
 	UDR0 = temp;
 }
 
-unsigned char RS485_receiveByte( void )
+uint8_t RS485_receiveByte( void )
 {
 	/* Wait for data to be received */
 	while ( !(UCSR0A & (1 << RXC0)) ) ;
@@ -63,46 +63,29 @@ unsigned char RS485_receiveByte( void )
 	return UDR0;
 }
 
-int send_Want2talk(uint8_t n_slave){
-	int i;
-	uint8_t* trama;
-	trama = (uint8_t *) malloc(2);
+uint8_t send_Address(uint8_t n_slave){
 
-	trama[0] = n_slave;
-	trama[1] = 0x03;
+	UCSR0B = (1 << TXB80); //Trama de endereços
 
-	for(i = 0 ; i <= 2; i++){
-		RS485_sendByte(trama[i]);
-	}
+	RS485_sendByte(n_slave);
+
 	return 0;
 }
 
-int read_Response(uint8_t n_slave){
-	int i;
-	uint8_t* trama_R;
-	trama_R = (uint8_t *) malloc(2);
+uint8_t send_Lotacao(uint8_t semaforo){
 
-	for(i = 0; i <= 2 ; i++){
-		trama_R[i] = RS485_receiveByte();
-	}
+	UCSR0B = (0 << TXB80); //Trama de dados
 
-	if(n_slave == trama_R[0]){
-		if(0x00 == trama_R[1]){
-			//Não quer falar
-			printf("Escravo não quer falar \n");
-			return 0;
-		}
-		else if(0x01 == trama_R[1]){
-			//Quer falar
-			printf("Escravo quer falar \n");
-			return 0;
-		}
-		else{
-			return -2;
-		}
+	if(1 == semaforo){
+		RS485_sendByte(0xFF); //Parque ocupado - semaforo vermelho
+		return 0;
 	}
-	else{
-		return -1;
+	else if(0 == semaforo){
+		RS485_sendByte(0xAA); //Parque livre - semaforo verde
+		return 0;
+	}
+	else {
+		return 1;
 	}
 
 }
