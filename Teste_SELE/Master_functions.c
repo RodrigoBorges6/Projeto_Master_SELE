@@ -17,8 +17,8 @@ void init_io(void){
 void init_RS485()
 {
 	/* Set baud rate */
-	UBRR0H = (unsigned char)(baudgen >> 8); //higher part of baudrate value
-	UBRR0L = (unsigned char) baudgen;		//lower part of baudrate value
+	UBRR0H = (uint8_t)(baudgen >> 8); //higher part of baudrate value
+	UBRR0L = (uint8_t) baudgen;		//lower part of baudrate value
 
 	/* Just in case ;) */
 	//UCSR0A = 0; //registo de flags pagina 192
@@ -50,22 +50,22 @@ void RS485_receivingMode()
 void RS485_sendByte(uint8_t temp)
 {
 	///* Wait for empty transmit buffer */
-	while ( !(UCSR0A & (1 << UDRE0)) ) ;
+	while ( (UCSR0A & (1 << UDRE0)) == 0 ) ;
 	/* Put data into buffer, sends the data */
-	UDR0 = temp;
+	UDR0 = 0x01;
 }
 
 uint8_t RS485_receiveByte( void )
 {
 	/* Wait for data to be received */
-	while ( !(UCSR0A & (1 << RXC0)) ) ;
+	while ( (UCSR0A & (1 << RXC0)) == 0 );
 	/* Get and return received data from buffer */
 	return UDR0;
 }
 
 uint8_t send_Address(uint8_t n_slave){
 
-	UCSR0B = (1 << TXB80); //Trama de endereços
+	UCSR0B = UCSR0B | (1 << TXB80); //Trama de endereços
 
 	RS485_sendByte(n_slave);
 

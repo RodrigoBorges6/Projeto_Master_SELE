@@ -26,10 +26,10 @@
 #define	baud 57600  // baud rate
 // Caution: erroneous result if F_CPU is not correctly defined
 #define baudgen ((F_CPU/(16*baud))-1)  //baud divider
-#define controlo_MAX485 PD2 //Quando está a 1, funciona como sender. Quando está a zero funciona como receiver.
+#define controlo_MAX485 2 //Quando está a 1, funciona como sender. Quando está a zero funciona como receiver.
 #define MAX485_Sending PORTD |= (1 << controlo_MAX485) //Coloca 1 na saída PD2 para pôr o transceiver em modo Sender
 #define MAX485_Receiving PORTD = PORTD & ~(1<<controlo_MAX485); //Coloca 0 na saída PD2 para pôr o transceiver em modo Receiver
-#define Led_controlo_MAX485 PD3
+#define Led_controlo_MAX485 3
 #define LED_MAX485_ON PORTD |= (1 << Led_controlo_MAX485)
 #define LED_MAX485_OFF PORTD = PORTD & ~(1<<Led_controlo_MAX485)
 //----------------------------------------------------------------------------------

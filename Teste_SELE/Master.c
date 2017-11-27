@@ -28,7 +28,7 @@ int main(void){
 	//Inicialização
 	init_io();
 	init_RS485();
-	RS485_sendingMode();
+	//RS485_sendingMode();
 
 	//Máquina de estados
 
@@ -36,13 +36,7 @@ int main(void){
 
 		if(0 == state){
 			//check = send_Address(id_slave);
-			//state = 1;
-
-			while (1)
-				{
-					while( ( UCSR0A & ( 1 << UDRE0 ) ) == 0 ){} // Wait for ready
-					UDR0 = 0x61;	                // Send HEX code for ASCII a
-				}
+			state = 1;
 
 		}
 		else if((0 == check) && (1 == state)){
