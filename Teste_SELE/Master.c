@@ -18,7 +18,7 @@ int main(void)
 
 	uint8_t state = 0;
 	uint8_t check = 0;
-	uint8_t lotacao_MAX = 5;
+	uint8_t lotacao_MAX = 6;
 	uint8_t lotacao_atual = 0;
 	uint8_t lotacao_atual_percentagem = 0;
 	uint8_t id_slave = 0x01;
@@ -36,7 +36,6 @@ int main(void)
 
 	while(1)
 	{
-
 		if(0 == state)
 		{
 
@@ -73,6 +72,7 @@ int main(void)
 				LED_Vermelho_ON;
 				LED_Amarelo_OFF;
 				LED_Verde_OFF;
+
 			}
 			else if( 100 > lotacao_atual_percentagem && lotacao_atual_percentagem >= 81)
 			{
@@ -100,7 +100,8 @@ int main(void)
 				id_slave = 0x01;
 			}
 			state = 0;
-			return 0;
+
+
 		}
 
 	}

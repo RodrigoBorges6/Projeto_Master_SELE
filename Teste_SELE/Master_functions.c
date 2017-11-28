@@ -12,9 +12,9 @@ void init_io(void)
 {
 
 	/* DDRD |= (1 << Led_controlo_MAX485); */
-	DDRD |= (1 << LED_Vermelho);
-	DDRD |= (1 << LED_Amarelo);
-	DDRD |= (1 << LED_Verde);
+	DDRB |= (1 << LED_Vermelho);
+	DDRB |= (1 << LED_Amarelo);
+	DDRB |= (1 << LED_Verde);
 	/*DDRD = DDRD | 0b00000100;*/  /*Definir pino como saída PD2 */
 }
 
