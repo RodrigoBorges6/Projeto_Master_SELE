@@ -21,7 +21,7 @@ int main(void){
 	uint8_t lotacao_atual = 0;
 	uint8_t id_slave = 0x01;
 	uint8_t n_slaves = 1; //número de slaves
-	uint8_t aux;
+	uint8_t aux = 0;
 	uint8_t valor_contador_slave[2] = {0x00,0x00};
 
 
