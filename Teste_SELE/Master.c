@@ -78,7 +78,92 @@ int main(void) {
 	 }
 	 */
 	/* Máquina de estados */
+	while (1) {
 
+		switch (state){
+
+			case STATE_ADDR_SEND:
+
+				MAX485_Sending;
+
+				if (0x00 != id_slave_alive[cont_SM]) {
+					check = send_Address(id_slave_alive[cont_SM]);
+					state = STATE_CONT_RECEIVE;
+				} else {
+					if (cont_SM < n_slaves) {
+						cont_SM++;
+					} else {
+						cont_SM = 0;
+					}
+				}
+				break;
+
+			case STATE_CONT_RECEIVE:
+
+				if(0 == check){
+					MAX485_Receiving;
+					valor_contador_slave[id_slave_alive[cont_SM]] = RS485_receiveByte();
+					state = STATE_CALC_SEND;
+				}
+				break;
+
+			case STATE_CALC_SEND:
+
+				lotacao_atual = 0;
+
+				for (aux = 0; aux < n_slaves; aux++) {
+					lotacao_atual = lotacao_atual + valor_contador_slave[aux];
+				}
+
+				lotacao_atual_percentagem = lotacao_atual * 100 / lotacao_MAX;
+
+				MAX485_Sending;
+
+				/* _delay_us(5); */
+				if (lotacao_atual >= lotacao_MAX) {
+					//flag_Verde = 0;
+					//flag_Vermelho = 1;
+					check = send_Lotacao(1); /* Lotação superior à lotação MAX */
+					/*semaforo vermelho */
+					LED_Vermelho_ON;
+					LED_Amarelo_OFF;
+					LED_Verde_OFF;
+
+				} else if ((100 > lotacao_atual_percentagem) && (lotacao_atual_percentagem >= 81)) {
+					check = send_Lotacao(0);
+					//flag_Verde = 1;
+					//flag_Vermelho = 0;
+					/* semaforo amarelo */
+					LED_Vermelho_OFF;
+					LED_Amarelo_ON;
+					LED_Verde_OFF;
+				} else {
+					check = send_Lotacao(0);/* verificar o check */
+					//flag_Verde = 1;
+					//flag_Vermelho = 0;
+					/* semaforo verde */
+					LED_Vermelho_OFF;
+					LED_Amarelo_OFF;
+					LED_Verde_ON;
+				}
+
+				if (cont_SM < n_slaves) {
+					cont_SM++;
+				} else {
+					cont_SM = 0;
+				}
+				state = STATE_ADDR_SEND;
+				break;
+
+			default:
+
+				state = STATE_ADDR_SEND;
+				break;
+		}
+	}
+
+
+/*
 	while (1) {
 		if (0 == state) {
 			MAX485_Sending;
@@ -96,8 +181,7 @@ int main(void) {
 
 		} else if ((0 == check) && (1 == state)) {
 
-			MAX485_Receiving
-			;
+			MAX485_Receiving;
 			valor_contador_slave[id_slave_alive[cont_SM]] = RS485_receiveByte();
 			state = 2;
 		} else if (2 == state) {
@@ -112,12 +196,12 @@ int main(void) {
 
 			MAX485_Sending;
 
-			/* _delay_us(5); */
+			 _delay_us(5);
 			if (lotacao_atual >= lotacao_MAX) {
 				//flag_Verde = 0;
 				//flag_Vermelho = 1;
-				check = send_Lotacao(1); /* Lotação superior à lotação MAX */
-				/*semaforo vermelho */
+				check = send_Lotacao(1);  Lotação superior à lotação MAX
+				semaforo vermelho
 				LED_Vermelho_ON
 				;
 				LED_Amarelo_OFF
@@ -130,7 +214,7 @@ int main(void) {
 				check = send_Lotacao(0);
 				//flag_Verde = 1;
 				//flag_Vermelho = 0;
-				/* semaforo amarelo */
+				 semaforo amarelo
 				LED_Vermelho_OFF
 				;
 				LED_Amarelo_ON
@@ -138,10 +222,10 @@ int main(void) {
 				LED_Verde_OFF
 				;
 			} else {
-				check = send_Lotacao(0);/* verificar o check */
+				check = send_Lotacao(0); verificar o check
 				//flag_Verde = 1;
 				//flag_Vermelho = 0;
-				/* semaforo verde */
+				 semaforo verde
 				LED_Vermelho_OFF
 				;
 				LED_Amarelo_OFF
@@ -159,6 +243,10 @@ int main(void) {
 		}
 
 	}
+*/
 
 }
+
+
+
 

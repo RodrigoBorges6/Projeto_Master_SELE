@@ -40,6 +40,9 @@
 #define LED_Verde PB5
 #define LED_Verde_ON PORTB |= (1 << LED_Verde);
 #define LED_Verde_OFF PORTB &= ~(1 << LED_Verde);
+#define STATE_ADDR_SEND 0
+#define STATE_CONT_RECEIVE 1
+#define STATE_CALC_SEND 2
 /*
  #define Led_controlo_MAX485 PD3
  #define LED_MAX485_ON PORTD |= (1 << Led_controlo_MAX485)
