@@ -128,9 +128,8 @@ int main(void) {
 
 				lotacao_atual_percentagem = lotacao_atual * 100 / lotacao_MAX;
 
+				_delay_us(30);
 				MAX485_Sending;
-
-				/* _delay_us(5); */
 				if (lotacao_atual >= lotacao_MAX) {
 					//flag_Verde = 0;
 					//flag_Vermelho = 1;
