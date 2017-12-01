@@ -54,8 +54,8 @@ int main(void) {
 	uint8_t n_slaves = 2; /* número de slaves */
 
 	//uint8_t id_slave_sistema[2] = {0x01,0x02};
-	uint8_t id_slave_alive[2] = { 0x01, 0x01 }; //{0x00,0x00}; ALTERAR ISTOOOOOOOOOO DEPOIS DE CHEKAR QUE FUNCIONA
-	char valor_contador_slave[2] = { 0, 0 };
+	uint8_t id_slave_alive[2] = { 0x01, 0x00 }; //{0x00,0x00}; ALTERAR ISTOOOOOOOOOO DEPOIS DE CHEKAR QUE FUNCIONA
+	uint8_t valor_contador_slave[2] = { 0, 0 };
 
 	/* Inicialização */
 
@@ -64,16 +64,17 @@ int main(void) {
 	/*init_timer_T1();
 	 init_interrupt();*/
 
-
 	/* Modo configuração */
-	if(~(PINB & (1 << Conf_buttom)))
+/*
+
+	if(!(PINB & (1 << Conf_buttom)))
 	{
 		LED_Vermelho_ON;
 		LED_Amarelo_ON;
 		while(1);
 
 	}
-
+*/
 	/* Rotina de checkar os slaves
 	 for( aux = 0 ; aux < n_slaves ; aux++)
 	 {
@@ -100,7 +101,7 @@ int main(void) {
 					check = send_Address(id_slave_alive[cont_SM]);
 					state = STATE_CONT_RECEIVE;
 				} else {
-					if (cont_SM < n_slaves) {
+					if (cont_SM < (n_slaves - 1)) {
 						cont_SM++;
 					} else {
 						cont_SM = 0;
@@ -112,7 +113,7 @@ int main(void) {
 
 				if(0 == check){
 					MAX485_Receiving;
-					valor_contador_slave[id_slave_alive[cont_SM]] = RS485_receiveByte();
+					valor_contador_slave[cont_SM] = RS485_receiveByte();
 					state = STATE_CALC_SEND;
 				}
 				break;
@@ -121,7 +122,7 @@ int main(void) {
 
 				lotacao_atual = 0;
 
-				for (aux = 0; aux < n_slaves; aux++) {
+				for (aux = 0; aux < (n_slaves - 1); aux++) {
 					lotacao_atual = lotacao_atual + valor_contador_slave[aux];
 				}
 
@@ -157,7 +158,7 @@ int main(void) {
 					LED_Verde_ON;
 				}
 
-				if (cont_SM < n_slaves) {
+				if (cont_SM < (n_slaves - 1)) {
 					cont_SM++;
 				} else {
 					cont_SM = 0;
