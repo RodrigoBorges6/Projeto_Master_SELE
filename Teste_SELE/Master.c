@@ -54,7 +54,7 @@ int main(void) {
 	uint8_t n_slaves = 2; /* número de slaves */
 
 	//uint8_t id_slave_sistema[2] = {0x01,0x02};
-	uint8_t id_slave_alive[2] = { 0x01, 0x00 }; //{0x00,0x00}; ALTERAR ISTOOOOOOOOOO DEPOIS DE CHEKAR QUE FUNCIONA
+	uint8_t id_slave_alive[2] = { 0x01, 0x02 }; //{0x00,0x00}; ALTERAR ISTOOOOOOOOOO DEPOIS DE CHEKAR QUE FUNCIONA
 	uint8_t valor_contador_slave[2] = { 0, 0 };
 
 	/* Inicialização */
@@ -122,7 +122,7 @@ int main(void) {
 
 				lotacao_atual = 0;
 
-				for (aux = 0; aux < (n_slaves - 1); aux++) {
+				for (aux = 0; aux <= (n_slaves - 1); aux++) {
 					lotacao_atual = lotacao_atual + valor_contador_slave[aux];
 				}
 

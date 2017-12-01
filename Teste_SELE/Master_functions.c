@@ -61,7 +61,7 @@ uint8_t send_Address(uint8_t n_slave) {
 
 	UCSR0B = UCSR0B | (1 << TXB80); /* Trama de endereços */
 
-	RS485_sendByte(0x01);
+	RS485_sendByte(n_slave);
 
 	return 0;
 }
