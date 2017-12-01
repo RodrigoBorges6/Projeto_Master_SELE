@@ -55,7 +55,7 @@ int main(void) {
 
 	//uint8_t id_slave_sistema[2] = {0x01,0x02};
 	uint8_t id_slave_alive[2] = { 0x01, 0x01 }; //{0x00,0x00}; ALTERAR ISTOOOOOOOOOO DEPOIS DE CHEKAR QUE FUNCIONA
-	uint8_t valor_contador_slave[2] = { 0, 0 };
+	char valor_contador_slave[2] = { 0, 0 };
 
 	/* Inicialização */
 
@@ -63,6 +63,16 @@ int main(void) {
 	init_RS485();
 	/*init_timer_T1();
 	 init_interrupt();*/
+
+
+	/* Modo configuração */
+	if(~(PINB & (1 << Conf_buttom)))
+	{
+		LED_Vermelho_ON;
+		LED_Amarelo_ON;
+		while(1);
+
+	}
 
 	/* Rotina de checkar os slaves
 	 for( aux = 0 ; aux < n_slaves ; aux++)
@@ -153,6 +163,7 @@ int main(void) {
 					cont_SM = 0;
 				}
 				state = STATE_ADDR_SEND;
+				_delay_us(200);
 				break;
 
 			default:

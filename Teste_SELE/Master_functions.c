@@ -14,7 +14,8 @@ void init_io(void) {
 	DDRB |= (1 << LED_Vermelho);
 	DDRB |= (1 << LED_Amarelo);
 	DDRB |= (1 << LED_Verde);
-	/*DDRD = DDRD | 0b00000100;*//*Definir pino como saída PD2 */
+	DDRB &= ~(1 << Conf_buttom); // declarar como uma entrada
+	PORTB |= (1 << Conf_buttom); //pull up
 }
 
 void init_RS485(void) {
@@ -29,7 +30,7 @@ void init_RS485(void) {
 	UCSR0B = (1 << TXEN0) | (1 << RXEN0) | (1 << UCSZ02);
 
 	/* Set frame format pagina 194: 9data, 1stop bit sem paridade*/
-	UCSR0C = (3 << UCSZ00)/*(1<<USBS0)seria para 2 stop bits */
+	UCSR0C = (7 << UCSZ00)/*(1<<USBS0)seria para 2 stop bits */
 			| (0 << UPM00) /* no parity */
 			| (0 << USBS0) /* 1 stop bit */
 			| (0 << UMSEL00) | (0 << UMSEL01);/* comunicacao assincrona */

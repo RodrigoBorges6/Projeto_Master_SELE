@@ -40,6 +40,8 @@
 #define LED_Verde PB5
 #define LED_Verde_ON PORTB |= (1 << LED_Verde);
 #define LED_Verde_OFF PORTB &= ~(1 << LED_Verde);
+#define Conf_buttom PB1
+
 #define STATE_ADDR_SEND 0
 #define STATE_CONT_RECEIVE 1
 #define STATE_CALC_SEND 2
