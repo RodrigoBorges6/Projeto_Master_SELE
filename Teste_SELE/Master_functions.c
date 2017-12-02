@@ -8,16 +8,18 @@
 
 #include "Master_functions.h"
 
-volatile uint8_t watchdog = 0;
+volatile uint16_t watchdog = 0;
 volatile uint8_t watchdog_flag = 0;
 
-ISR (TIMER1_OVF_vect) {
+ISR (TIMER1_COMPA_vect) {
 
-	watchdog_flag++;
+	//TCNT1 = 0xC2F7; // renicia o timer com 49911
+	TCNT1 = 0;
+	watchdog++;
 
-	if (watchdog > 5) {
+	if (watchdog >= 1000) {
 
-		LED_Vermelho_ON;
+		//LED_Vermelho_ON;
 		watchdog_flag = 1;
 
 		return;
@@ -31,9 +33,11 @@ ISR (TIMER1_OVF_vect) {
 
 void reset_watchdog (void)
 {
-	TCNT1 = 0xC2F7; 	// renicia o timer com 49911
-	watchdog = 0;
 
+	//TCNT1 = 0xC2F7; 	// renicia o timer com 49911
+	TCNT1 = 0;
+	watchdog = 0;
+	watchdog_flag = 0;
 	return;
 }
 
@@ -153,8 +157,11 @@ uint8_t send_Lotacao(uint8_t semaforo) {
 
 uint8_t check_slave(uint8_t n_slave) {
 
+
 	MAX485_Sending;
+
 	send_Address(n_slave);
+
 	MAX485_Receiving
 	;
 
@@ -172,15 +179,22 @@ uint8_t check_slave(uint8_t n_slave) {
 
 void init_timer_T1(void) {
 
-	//este timer conta segundos, escala = 1s
+	//este timer conta mili segundos, escala = 1ms
+
+	TIMSK1 |= (1 << OCIE1A); // interrupçao quando atinge OCR1A
 
 	TCCR1B = 0;		//parar TC1
 	TCCR1A = 0;		//modo normal
-	TCNT1 = 0xC2F7;	//valor para iniciar o timer (65536 - (1 - 16MHz / 1024)) = 4991
 
-	TIMSK1 |= (1 << TOIE1);	//ativar a interupção por overflow
+	//TCNT1 = 0xC2F7;	//valor para iniciar o timer (65536 - (1 - 16MHz / 1024)) = 4991
 
-	TCCR1B |= (1 << CS12) | (1 << CS10);	// timer 1 com predivisão de 1024
+	TCCR1B |= (1 << CS10); // sem divisao
+
+	OCR1A = 16000;
+
+	//TIMSK1 |= (1 << TOIE1);	//ativar a interupção por overflow
+
+	//TCCR1B |= (1 << CS12) | (1 << CS10);	// timer 1 com predivisão de 1024
 }
 
 void init_interrupt(void) {

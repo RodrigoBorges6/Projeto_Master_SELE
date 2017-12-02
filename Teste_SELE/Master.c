@@ -67,13 +67,14 @@ int main(void) {
 		_delay_us(30);
 	}
 
+	//return 0;
 	/* Máquina de estados */
 	while (1) {
 
 		switch (state) {
 
 		case STATE_ADDR_SEND:
-
+			TCNT1 = 0xC2F7;
 			MAX485_Sending; /* Colocar pino de controlo a 1 -> MAX485 em sending mode */
 
 			if (0x00 != id_slave_alive[cont_SM]) {
@@ -83,6 +84,8 @@ int main(void) {
 				state = STATE_CONT_RECEIVE;
 
 			} else {
+
+				//LED_Amarelo_ON;
 
 				if (cont_SM < (n_slaves - 1)) {
 
