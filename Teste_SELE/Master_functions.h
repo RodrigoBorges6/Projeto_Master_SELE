@@ -12,6 +12,8 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
+#include "serial_port.h"
+#include <stdlib.h>
 /*
  //#include <stdio.h>
  //#include <stdlib.h>
@@ -72,4 +74,6 @@ uint8_t check_slave(uint8_t n_slave);
  uint8_t flag_Verde_2 = 0;
  uint8_t cont_tempo = 0;
  */
+
+
 #endif /* MASTER_FUNCTIONS_H_ */
