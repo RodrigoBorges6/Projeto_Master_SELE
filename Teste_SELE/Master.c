@@ -27,7 +27,7 @@ int main(void) {
 	uint8_t n_slaves = 2; /* número de slaves */
 
 	uint8_t id_slave_sistema[2] = { 0x01, 0x02 };
-	uint8_t id_slave_alive[2] = { 0x99, 0x99 }; //{0x00,0x00}; ALTERAR ISTOOOOOOOOOO DEPOIS DE CHEKAR QUE FUNCIONA
+	uint8_t id_slave_alive[2] = { 0x99, 0x99 };
 	char valor_contador_slave[2] = { 0, 0 };
 	char byte = 0;
 
@@ -39,16 +39,11 @@ int main(void) {
 	init_interrupt();
 
 	/* Modo configuração */
-	/*
 
 	 if(!(PINB & (1 << Conf_buttom)))
 	 {
-	 LED_Vermelho_ON;
-	 LED_Amarelo_ON;
-	 while(1);
-
+		 configuration_mode();
 	 }
-	 */
 
 	/* Rotina de checkar os slaves */
 

@@ -12,6 +12,9 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
+#include <stdlib.h>
+#include "serial_port.h"
+
 /*
  //#include <stdio.h>
  //#include <stdlib.h>
@@ -63,7 +66,7 @@ uint8_t check_slave(uint8_t n_slave);
 void init_timer_T1(void);
 void init_interrupt(void);
 void reset_watchdog (void);
-
+void configuration_mode(void);
 
 
 #endif /* MASTER_FUNCTIONS_H_ */

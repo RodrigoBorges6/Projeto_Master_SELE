@@ -11,6 +11,8 @@
 volatile uint16_t watchdog = 0;
 volatile uint8_t watchdog_flag = 0;
 
+uint8_t EEMEM num_of_slaves, address_of_slaves[3];
+
 ISR (TIMER1_COMPA_vect) {
 
 	//TCNT1 = 0xC2F7; // renicia o timer com 49911
@@ -31,8 +33,203 @@ ISR (TIMER1_COMPA_vect) {
 	}
 }
 
-void reset_watchdog (void)
-{
+void configuration_mode(void) {
+
+	char str[10], *ptr;
+	uint8_t mode = 0, aux_num_slaves = 0;
+	uint8_t aux_slave_address = 0;
+
+
+	LED_Vermelho_ON
+	;
+	LED_Amarelo_ON
+	;
+	LED_Verde_ON
+	;
+
+	write_string("\r\nMODO DE PROGRAMACAO\r\n");
+	write_string("Escolher modo de operação:\r\n"
+			"1 - Modo de configuração de slaves\r\n"
+			"2 - Configuração atual\r\n"
+			"3 - Informações Master\r\n");
+
+	do {
+		write_string("\r\n -> Modo: ");
+
+		while (!(read_string(str)))
+			;
+		mode = strtol(str, &ptr, 10);
+
+		if ((mode != 1) && (mode != 2) && (mode != 3)) {
+			write_string("Modo de configuração inválido!\r\n");
+		}
+	} while ((mode != 1) && (mode != 2) && (mode != 3));
+
+	switch (mode) {
+
+	case 1: /*Modo de configuração de slaves*/
+
+		write_string(
+				"\r\nNúmero de slaves pretendidos (mínimo de 1 e máximo de 3): ");
+
+		do {
+			while (!(read_string(str)))
+				;
+			aux_num_slaves = strtol(str, &ptr, 10);
+
+			if ((aux_num_slaves != 1) && (aux_num_slaves != 2) && (aux_num_slaves != 3)) {
+				write_string("\r\nNúmero de slaves inválido! ");
+			}
+		} while ((aux_num_slaves != 1) && (aux_num_slaves != 2) && (aux_num_slaves != 3));
+
+		//eeprom_update_byte(&num_of_slaves, aux_num_slaves);
+
+		switch (aux_num_slaves) {
+
+		case 1:
+
+			write_string("\r\nEndereço do slave (valor entre 1 e 256): ");
+
+			do {
+				while (!(read_string(str)))
+					;
+				aux_slave_address = strtol(str, &ptr, 10);
+
+				if (!((aux_slave_address >= 1) && (aux_slave_address <= 256))) {
+					write_string("\r\nEndereço inválido! ");
+				}
+
+			} while (!((aux_slave_address >= 1) && (aux_slave_address <= 256)));
+
+			//eeprom_update_byte(&address_of_slaves[0], aux_slave_address);
+			//eeprom_update_byte(&address_of_slaves[1], 0x00);
+			//eeprom_update_byte(&address_of_slaves[2], 0x00);
+			write_string("\r\n TESTE 1\r\n");
+			break;
+
+		case 2:
+
+			write_string(
+					"\r\nEndereço do primeiro slave (valor entre 1 e 256): ");
+
+			do {
+				while (!(read_string(str)))
+					;
+				aux_slave_address = strtol(str, &ptr, 10);
+
+				if (!((aux_slave_address >= 1) && (aux_slave_address <= 256))) {
+					write_string("\r\nEndereço inválido! ");
+				}
+
+			} while (!((aux_slave_address >= 1) && (aux_slave_address <= 256)));
+
+			//eeprom_update_byte(&address_of_slaves[0], aux_slave_address);
+
+			write_string(
+					"\r\nEndereço do segundo slave (valor entre 1 e 256): ");
+
+			do {
+				while (!(read_string(str)))
+					;
+				aux_slave_address = strtol(str, &ptr, 10);
+
+				if (!((aux_slave_address >= 1) && (aux_slave_address <= 256))) {
+					write_string("\r\nEndereço inválido! ");
+				}
+
+			} while (!((aux_slave_address >= 1) && (aux_slave_address <= 256)));
+
+			//eeprom_update_byte(&address_of_slaves[1], aux_slave_address);
+			//eeprom_update_byte(&address_of_slaves[2], 0x00);
+			write_string("\r\n TESTE 2\r\n");
+			break;
+
+		case 3:
+
+			write_string(
+					"\r\nEndereço do primeiro slave (valor entre 1 e 256): ");
+
+			do {
+				while (!(read_string(str)))
+					;
+				aux_slave_address = strtol(str, &ptr, 10);
+
+				if (!((aux_slave_address >= 1) && (aux_slave_address <= 256))) {
+					write_string("\r\nEndereço inválido! ");
+				}
+
+			} while (!((aux_slave_address >= 1) && (aux_slave_address <= 256)));
+
+			//eeprom_update_byte(&address_of_slaves[0], aux_slave_address);
+
+			write_string(
+					"\r\nEndereço do segundo slave (valor entre 1 e 256): ");
+
+			do {
+				while (!(read_string(str)))
+					;
+				aux_slave_address = strtol(str, &ptr, 10);
+
+				if (!((aux_slave_address >= 1) && (aux_slave_address <= 256))) {
+					write_string("\r\nEndereço inválido! ");
+				}
+
+			} while (!((aux_slave_address >= 1) && (aux_slave_address <= 256)));
+
+			//eeprom_update_byte(&address_of_slaves[1], aux_slave_address);
+
+			write_string(
+					"\r\nEndereço do terceiro slave (valor entre 1 e 256): ");
+
+			do {
+				while (!(read_string(str)))
+					;
+				aux_slave_address = strtol(str, &ptr, 10);
+
+				if (!((aux_slave_address >= 1) && (aux_slave_address <= 256))) {
+					write_string("\r\nEndereço inválido! ");
+				}
+
+			} while (!((aux_slave_address >= 1) && (aux_slave_address <= 256)));
+
+			//eeprom_update_byte(&address_of_slaves[2], aux_slave_address);
+			write_string("\r\n TESTE 3\r\n");
+			break;
+
+		default:
+
+			write_string("\r\nERRO ERRO ERRO!!!!!!!\r\n");
+			break;
+
+		}
+		break;
+
+	case 2: /*Configuração atual*/
+
+		write_string("\r\n******Configuração Atual******\r\n");
+		write_string("Número de slaves: 3\r\n");
+		write_string("Endereço do primeiro slave: \r\n");
+		write_string("Endereço do segundo slave: \r\n");
+		write_string("Endereço do terceiro slave: \r\n");
+		break;
+
+	case 3: /*Informações Master*/
+
+		write_string("\r\n******Informações Master******\r\n");
+		write_string("Serial Number: 123456789\r\n");
+		write_string("Data de fabrico: 2 de Dezembro de 2017\r\n");
+		write_string("Local de fabrico: DEEC @ FEUP\r\n");
+		write_string("Developers: Pedro Rodrigues & Rodrigo Borges\r\n");
+		break;
+
+	default:
+		write_string("\r\n ERRO ERRO ERRO ERRO \r\n");
+		break;
+
+	}
+}
+
+void reset_watchdog(void) {
 
 	//TCNT1 = 0xC2F7; 	// renicia o timer com 49911
 	TCNT1 = 0;
@@ -157,7 +354,6 @@ uint8_t send_Lotacao(uint8_t semaforo) {
 
 uint8_t check_slave(uint8_t n_slave) {
 
-
 	MAX485_Sending;
 
 	send_Address(n_slave);
@@ -199,7 +395,8 @@ void init_timer_T1(void) {
 
 void init_interrupt(void) {
 
-	sei();//definir interrupções
+	sei();
+	//definir interrupções
 
 }
 
