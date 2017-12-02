@@ -39,6 +39,8 @@ void configuration_mode(void) {
 	uint8_t mode = 0, aux_num_slaves = 0;
 	uint8_t aux_slave_address = 0;
 
+	char aux = "3";
+
 
 	LED_Vermelho_ON
 	;
@@ -50,8 +52,9 @@ void configuration_mode(void) {
 	write_string("\r\nMODO DE PROGRAMACAO\r\n");
 	write_string("Escolher modo de operação:\r\n"
 			"1 - Modo de configuração de slaves\r\n"
-			"2 - Configuração atual\r\n"
-			"3 - Informações Master\r\n");
+			"2 - Modo de configuração da lotação do parque\r\n"
+			"3 - Configuração atual\r\n"
+			"4 - Informações Master\r\n");
 
 	do {
 		write_string("\r\n -> Modo: ");
@@ -104,7 +107,7 @@ void configuration_mode(void) {
 			//eeprom_update_byte(&address_of_slaves[0], aux_slave_address);
 			//eeprom_update_byte(&address_of_slaves[1], 0x00);
 			//eeprom_update_byte(&address_of_slaves[2], 0x00);
-			write_string("\r\n TESTE 1\r\n");
+			write_string("\r\nConfiguração do slave concluída com sucesso!!\r\n");
 			break;
 
 		case 2:
@@ -141,7 +144,7 @@ void configuration_mode(void) {
 
 			//eeprom_update_byte(&address_of_slaves[1], aux_slave_address);
 			//eeprom_update_byte(&address_of_slaves[2], 0x00);
-			write_string("\r\n TESTE 2\r\n");
+			write_string("\r\nConfiguração dos slaves concluida com sucesso!!\r\n");
 			break;
 
 		case 3:
@@ -193,7 +196,7 @@ void configuration_mode(void) {
 			} while (!((aux_slave_address >= 1) && (aux_slave_address <= 256)));
 
 			//eeprom_update_byte(&address_of_slaves[2], aux_slave_address);
-			write_string("\r\n TESTE 3\r\n");
+			write_string("\r\nConfiguração dos slaves concluída com sucesso!!\r\n");
 			break;
 
 		default:
@@ -204,16 +207,28 @@ void configuration_mode(void) {
 		}
 		break;
 
-	case 2: /*Configuração atual*/
+	case 3: /*Configuração atual*/
 
 		write_string("\r\n******Configuração Atual******\r\n");
+/*
+		aux_num_slaves = eeprom_read_byte(&num_of_slaves);
+
+		if(1 == aux_num_slaves){
+			write_string("Endereço do primeiro slave: \r\n");
+
+		}*/
+
+
 		write_string("Número de slaves: 3\r\n");
 		write_string("Endereço do primeiro slave: \r\n");
 		write_string("Endereço do segundo slave: \r\n");
 		write_string("Endereço do terceiro slave: \r\n");
+		print_char(aux);
+		write_string("\r\n");
+		write_string("Endereço do quarto slave: \r\n");
 		break;
 
-	case 3: /*Informações Master*/
+	case 4: /*Informações Master*/
 
 		write_string("\r\n******Informações Master******\r\n");
 		write_string("Serial Number: 123456789\r\n");
