@@ -19,6 +19,7 @@ int main(void) {
 	char lotacao_atual = 0;
 	uint8_t lotacao_atual_percentagem = 0;
 	uint8_t n_slaves = 2;
+	uint8_t cont_slaves_desligados = 0;
 
 	uint8_t id_slave_sistema[2] = { 0x01, 0x02 };
 	uint8_t id_slave_alive[2] = { 0x99, 0x99 };
@@ -72,13 +73,23 @@ int main(void) {
 
 			} else {
 
-				if (cont_SM < (n_slaves - 1)) { /* Se ainda nao tivermos percorrido todos os slaves */
+				if (n_slaves == cont_slaves_desligados ) {	/* Se todos os slaves estiver nao operacionais */
 
-					cont_SM++;
+					LED_Vermelho_ON;
+					LED_Amarelo_ON;
+					LED_Verde_OFF;
+					break;
 
-				} else { /* Se ja tivermos percorridos todos os slaves, recomeçar do 1º */
+				} else {
 
-					cont_SM = 0;
+					if (cont_SM < (n_slaves - 1)) { /* Se ainda nao tivermos percorrido todos os slaves */
+
+						cont_SM++;
+
+					} else { /* Se ja tivermos percorridos todos os slaves, recomeçar do 1º */
+
+						cont_SM = 0;
+					}
 				}
 			}
 			break;
@@ -92,6 +103,8 @@ int main(void) {
 			if (watchdog_timeout == byte) {
 
 				id_slave_alive[cont_SM] = 0x00; /* Considerar que o slave não está operacional */
+
+				cont_slaves_desligados++; /* Incrementar o numero de slaves nao operacionais */
 
 				state = STATE_ADDR_SEND;
 				break;
@@ -125,6 +138,8 @@ int main(void) {
 
 					id_slave_alive[cont_SM] = 0x00; /* Eliminar o slave da lista de slaves operacionais */
 
+					cont_slaves_desligados++; /* Incrementar o numero de slaves nao operacionais */
+
 					state = STATE_ADDR_SEND;
 					break;
 
@@ -156,6 +171,9 @@ int main(void) {
 				if ( watchdog_timeout == send_Lotacao(0)) {   /*Slave ficou nao operacional */
 
 					id_slave_alive[cont_SM] = 0x00;	/* Eliminar o slave da lista de slaves operacionais */
+
+					cont_slaves_desligados++; /* Incrementar o numero de slaves nao operacionais */
+
 					state = STATE_ADDR_SEND;
 					break;
 
@@ -189,6 +207,8 @@ int main(void) {
 				if ( watchdog_timeout == send_Lotacao(0)) {		/*Slave ficou nao operacional */
 
 					id_slave_alive[cont_SM] = 0x00; /* Eliminar o slave da lista de slaves operacionais */
+
+					cont_slaves_desligados++; /* Incrementar o numero de slaves nao operacionais */
 
 					state = STATE_ADDR_SEND;
 					break;
