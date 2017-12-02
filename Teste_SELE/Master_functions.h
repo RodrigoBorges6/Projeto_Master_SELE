@@ -12,8 +12,9 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
-#include "serial_port.h"
 #include <stdlib.h>
+#include "serial_port.h"
+
 /*
  //#include <stdio.h>
  //#include <stdlib.h>
@@ -47,6 +48,9 @@
 #define STATE_ADDR_SEND 0
 #define STATE_CONT_RECEIVE 1
 #define STATE_CALC_SEND 2
+
+
+#define watchdog_timeout 99
 /*
  #define Led_controlo_MAX485 PD3
  #define LED_MAX485_ON PORTD |= (1 << Led_controlo_MAX485)
@@ -55,25 +59,14 @@
 void init_io(void);
 void init_RS485(void);
 void RS485_sendByte(uint8_t temp);
-uint8_t RS485_receiveByte(void);
-uint8_t send_Address(uint8_t n_slave);
+char RS485_receiveByte(void);
+void send_Address(uint8_t n_slave);
 uint8_t send_Lotacao(uint8_t semaforo);
 uint8_t check_slave(uint8_t n_slave);
-/*void init_timer_T1(void);
- void init_interrupt(void);
- */
-/*
- uint16_t EEMEM eeprom_Vermelho_1, eeprom_Verde_1, eeprom_Vermelho_2, eeprom_Verde_2;
- uint8_t cont_Vermelho_1 = 0;
- uint8_t cont_Vermelho_2 = 0;
- uint8_t cont_Verde_1 = 0;
- uint8_t cont_Verde_2 = 0;
- uint8_t flag_Vermelho_1 = 0;
- uint8_t flag_Vermelho_2 = 0;
- uint8_t flag_Verde_1 = 0;
- uint8_t flag_Verde_2 = 0;
- uint8_t cont_tempo = 0;
- */
+void init_timer_T1(void);
+void init_interrupt(void);
+void reset_watchdog (void);
+void configuration_mode(void);
 
 
 #endif /* MASTER_FUNCTIONS_H_ */
