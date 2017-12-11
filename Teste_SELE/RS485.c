@@ -1,13 +1,10 @@
 /*
- * Master_functions.c
-
+ * RS485.c
  *
- *  Created on: 26/11/2017
  *      Author: pedrorodrigues
  */
 
 #include "RS485.h"
-
 
 volatile uint16_t watchdog = 0; /* contador do watchdog */
 volatile uint8_t watchdog_flag = 0; /* flag que indica se o watchdog ativou */
@@ -34,14 +31,12 @@ void init_timer_T1(void) {
 
 	/*este timer conta mili segundos, escala = 1ms */
 
+	OCR1A = 16000; /* valor onde se dá a interrupt */
+
 	TIMSK1 |= (1 << OCIE1A); /* interrupçao quando atinge OCR1A */
 
-	TCCR1B = 0;		/*parar TC1 */
-	TCCR1A = 0;		/*modo normal */
+	TCCR1B |= (1 << CS10) | (1 << WGM12) ; /* sem pre divisao  e como CTC mode*/
 
-	TCCR1B |= (1 << CS10); /* sem pre divisao */
-
-	OCR1A = 16000; /* valor onde se dá a interrupt */
 
 }
 
@@ -53,7 +48,6 @@ void init_interrupt(void) {
 
 ISR (TIMER1_COMPA_vect) { /* interrupt a cada 1ms */
 
-	TCNT1 = 0; /* reiniciar o timer */
 	watchdog++; /* incrementar o contador */
 
 	if (watchdog >= 1000) { /* Se ja contou 1000 tickets ou seja 1 segundo */

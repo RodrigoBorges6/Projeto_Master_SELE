@@ -1,7 +1,6 @@
 /*
- * Master_functions.h
+ * RS485.h
  *
- *  Created on: 26/11/2017
  *      Author: pedrorodrigues
  */
 
