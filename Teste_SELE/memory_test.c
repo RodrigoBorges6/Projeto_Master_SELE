@@ -1,4 +1,9 @@
-/* Implementation of MARCH C- */
+/*
+ *		memory_test.c
+ *
+ *      Author: pedrorodrigues
+ */
+
 
 #include "memory_test.h"
 
@@ -7,8 +12,9 @@
 
 uint16_t EEMEM hash_flash, assinatura;
 
+static uint8_t classb_buffer[SEC_SIZE]/* __attribute__ ((section (".classb_sram_buffer")))*/;
 
-uint8_t teste_FLASH(void){
+uint8_t flash_test(void){
 
 	uint16_t hash = 0;
 	uint16_t i = 0;
@@ -35,249 +41,151 @@ uint8_t teste_FLASH(void){
 	}
 }
 
-uint8_t MarchC_minus(uint8_t* addr_base, uint16_t n) {
+uint8_t sram_test(){
 
-	writeZero(EITHER, addr_base, n);
+	static uint8_t current_section = 0;
 
-	if(0 == readZero_writeOne(UP, addr_base, n)){
+		for(current_section = 0; current_section < NSECS; current_section++) {
 
-		if(0 == readOne_writeZero(UP, addr_base, n)){
-
-			if(0 == readZero_writeOne(UP, addr_base, n)){
-
-				if(0 == readOne_writeZero(UP, addr_base, n)){
-
-					readZero(EITHER, addr_base, n);
-					return 0;
-				}
-
-				else{
-
-					return 1;
-				}
-			}
-			else{
+			if (marchC_minus( (uint8_t *) INTERNAL_SRAM_START + current_section * SEC_SIZE, classb_buffer, SEC_SIZE)){
 
 				return 1;
+
 			}
 		}
-		else{
 
-			return 1;
+		return 0;
+}
+
+uint8_t marchC_minus(register volatile uint8_t * p_sram, register volatile uint8_t * p_buffer, register uint16_t size) {
+
+
+	/*
+	 * p_sram -> pointer to the start of the sram memory
+	 * p_buffer -> pointer to the start of the buffer
+	 */
+
+	register uint16_t i = 0; /* TOdas as variaveis sao registers para nao serem escritas na RAM para nao interferir no teste */
+	register uint8_t erro = 0;
+
+	/* Save content of the section: copy to buffer unless we test the buffer */
+	if (p_buffer != p_sram){
+
+		for (uint16_t i = 0; i < size; i++){
+
+			*(p_buffer + i) = *(p_sram + i);
+
 		}
 	}
-	else
-	{
+
+
+
+	/*
+	 * Implemetação do MARCH C-
+	 */
+
+	/* Write ZEROS UP */
+
+	for (i = 0; i < size; i++) {
+
+		*(p_sram + i) = ZEROS;
+
+		/* induzir erro */
+
+		/* if((p_sram + i) == (uint8_t *) 0x0800){
+
+			*(p_sram+i) = 0xff;
+
+		}*/
+
+	}
+
+	/* read ZEROS, write ONES UP */
+
+	for (i = 0; i < size; i++) {
+
+		if (*(p_sram + i) != ZEROS){
+
+			erro = 1;
+
+		}
+
+		*(p_sram + i) = ONES;
+
+	}
+
+	/* read ONES, write ZEROS UP */
+
+	for (i = 0; i < size; i++) {
+
+		if (*(p_sram + i) != ONES){
+
+			erro = 1;
+
+		}
+
+		*(p_sram + i) = ZEROS;
+
+	}
+
+	/* read ZEROS, write ONES DOWN */
+	for (i = size; i > 0; i--) {
+
+		if (*(p_sram + i - 1) != ZEROS){
+
+			erro = 1;
+
+		}
+
+		*(p_sram + i - 1) = ONES;
+
+	}
+
+	/*  read ONES, write ZEROS DOWN */
+	for (i = size; i > 0; i--) {
+
+		if (*(p_sram + i - 1) != ONES){
+
+			erro = 1;
+
+		}
+
+		*(p_sram + i - 1) = ZEROS;
+
+	}
+
+	/* read ZEROS UP */
+	for (i = 0; i < size; i++) {
+
+		if (*(p_sram + i) != ZEROS){
+
+			erro = 1;
+
+		}
+
+	}
+
+	/* Restore content of the section: copy from buffer, unless buffer is tested */
+	if (p_buffer != p_sram){
+
+		for (i = 0; i < size; i++){
+
+			*(p_sram + i) = *(p_buffer + i);
+
+		}
+
+	}
+
+	if(erro == 0) {
+
+		return 0;
+
+	}
+
+	else{
 
 		return 1;
-	}
-}
-
-void writeZero(uint8_t addr_direction, uint8_t* addr_base, uint16_t n) {
-
-	int16_t cell = 0;
-
-	if (UP == addr_direction) {
-
-		for (cell = 0; cell <= n - 1; cell++) {
-
-			addr_base[cell] = ZEROS;
-		}
 
 	}
 
-	else if (DOWN == addr_direction) {
-
-		for (cell = n - 1; cell >= 0; cell--) {
-
-			addr_base[cell] = ZEROS;
-		}
-	}
-
-	else {
-
-		for (cell = 0; cell <= n - 1; cell++) {
-
-			addr_base[cell] = ZEROS;
-		}
-
-	}
-}
-
-uint8_t readZero(uint8_t addr_direction, uint8_t* addr_base, uint16_t n) {
-
-	int16_t cell = 0;
-
-		if (UP == addr_direction) {
-
-			for (cell = 0; cell <= n - 1; cell++) {
-
-				if (ZEROS != addr_base[cell]) {
-
-					return 1;
-
-				}
-
-			}
-
-			return 0;
-
-		}
-
-		else if (DOWN == addr_direction) {
-
-			for (cell = n - 1; cell >= 0; cell--) {
-
-				if (ZEROS != addr_base[cell]) {
-
-					return 1;
-
-				}
-			}
-
-			return 0;
-		}
-
-		else {
-
-			for (cell = 0; cell <= n - 1; cell++) {
-
-				if (ZEROS != addr_base[cell]) {
-
-					return 1;
-
-				}
-			}
-
-			return 0;
-		}
-
-}
-
-uint8_t readZero_writeOne(uint8_t addr_direction, uint8_t* addr_base, uint16_t n) {
-
-	int16_t cell = 0;
-
-	if (UP == addr_direction) {
-
-		for (cell = 0; cell <= n - 1; cell++) {
-
-			if (ZEROS == addr_base[cell]) {
-
-				addr_base[cell] = ONES;
-
-			}
-
-			else {
-
-				return 1;
-			}
-		}
-
-		return 0;
-
-	}
-
-	else if (DOWN == addr_direction) {
-
-		for (cell = n - 1; cell >= 0; cell--) {
-
-			if (ZEROS == addr_base[cell]) {
-
-				addr_base[cell] = ONES;
-
-			}
-
-			else {
-
-				return 1;
-			}
-		}
-
-		return 0;
-	}
-
-	else {
-
-		for (cell = 0; cell <= n - 1; cell++) {
-
-			if (ZEROS == addr_base[cell]) {
-
-				addr_base[cell] = ONES;
-
-			}
-
-			else {
-
-				return 1;
-			}
-		}
-
-		return 0;
-	}
-
-}
-
-uint8_t readOne_writeZero(uint8_t addr_direction, uint8_t* addr_base, uint16_t n) {
-
-	int16_t cell = 0;
-
-	if (UP == addr_direction) {
-
-		for (cell = 0; cell <= n - 1; cell++) {
-
-			if (ONES == addr_base[cell]) {
-
-				addr_base[cell] = ZEROS;
-
-			}
-
-			else {
-
-				return 1;
-
-			}
-		}
-
-		return 0;
-
-	}
-
-	else if (DOWN == addr_direction) {
-
-		for (cell = n - 1; cell >= 0; cell--) {
-
-			if (ONES == addr_base[cell]) {
-
-				addr_base[cell] = ZEROS;
-
-			}
-
-			else {
-
-				return 1;
-			}
-		}
-
-		return 0;
-	}
-
-	else {
-
-		for (cell = 0; cell <= n - 1; cell++) {
-
-			if (ONES == addr_base[cell]) {
-
-				addr_base[cell] = ZEROS;
-
-			}
-
-			else {
-
-				return 1;
-			}
-		}
-
-		return 0;
-	}
 }

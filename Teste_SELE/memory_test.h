@@ -1,6 +1,6 @@
 /*
+ *		memory_test.h
  *
- *  Created on: 03/12/2017
  *      Author: pedrorodrigues
  */
 
@@ -16,22 +16,23 @@
 
 #define ONES 0xFF
 #define ZEROS 0x00
-#define UP 1
-#define DOWN 0
-#define EITHER 2
-#define SIGNATURE_FLASH 12345
 
-uint8_t teste_FLASH(void);
+#define SIGNATURE_FLASH 12344
 
-uint8_t MarchC_minus(uint8_t* addr_base, uint16_t n);
+/*******************************************************************************************************************************
+ * Testes de memória ClassB
+ * Adaptação da biblioteca da AVR
+ ***************************************************************************************************************************/
 
-void writeZero(uint8_t addr_direction, uint8_t* addr_base, uint16_t n);
+#define INTERNAL_SRAM_SIZE 2048
+#define INTERNAL_SRAM_START 0x0100
+#define NSECS 8 /* Podia ser 2, 4, 8, 16 etc */
+#define SEC_SIZE (INTERNAL_SRAM_SIZE / NSECS) /*internal The size of each segment in bytes */
 
-uint8_t readZero(uint8_t addr_direction, uint8_t* addr_base, uint16_t n);
+uint8_t sram_test(void);
 
-uint8_t readZero_writeOne(uint8_t addr_direction, uint8_t* addr_base, uint16_t n);
+uint8_t marchC_minus(register volatile uint8_t * p_sram, register volatile uint8_t * p_buffer, register uint16_t size);
 
-uint8_t readOne_writeZero(uint8_t addr_direction, uint8_t* addr_base, uint16_t n);
-
+uint8_t flash_test(void);
 
 #endif /* MEMORY_TEST_H_ */
