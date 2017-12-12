@@ -27,20 +27,29 @@
 #define watchdog_timeout 99	/* valor peseudo-aleatorio, apenas para identificar timeout */
 
 
+/* Configura o RS485 e o seu pino de controlo */
+void init_RS485(void);
 
-void init_RS485(void);	/* Configura o RS485 e o seu pino de controlo */
+/* Configura o Timer 1
+ * para funcionar sem pre-divisao em CTC mode
+ * de forma a contar de um em um milisegundo
+ */
+void init_timer_T1(void);
 
-void init_timer_T1(void);	/* Configura o Timer 1 */
+/* Ativa as interrupts */
+void init_interrupt(void);
 
-void init_interrupt(void);	/* Ativa as interrupts */
+/* Reset do watchdog */
+void reset_watchdog (void);
 
-void reset_watchdog (void);	/* Reset do watchdog */
+/* Envia um byte pelo RS485 */
+void RS485_sendByte(uint8_t temp);
 
-void RS485_sendByte(uint8_t temp);	/* Envia um byte pelo RS485 */
+/* Recebe um byte pelo RS485 */
+char RS485_receiveByte(void);
 
-char RS485_receiveByte(void);	/* Recebe um byte pelo RS485 */
-
-void send_Address(uint8_t n_slave);	/* Enviar address ao slave */
+/* Enviar address ao slave */
+void send_Address(uint8_t n_slave);
 
 
 

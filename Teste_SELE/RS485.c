@@ -25,6 +25,8 @@ void init_RS485(void) {
 	| (0 << UMSEL00) | (0 << UMSEL01);/* comunicacao assincrona */
 
 	DDRB |= (1 << controlo_MAX485);/* Definir pino de controlo como saída PB2 */
+
+	return;
 }
 
 void init_timer_T1(void) {
@@ -37,12 +39,14 @@ void init_timer_T1(void) {
 
 	TCCR1B |= (1 << CS10) | (1 << WGM12) ; /* sem pre divisao  e como CTC mode*/
 
-
+	return;
 }
 
 void init_interrupt(void) {
 
 	sei(); /* Ativar interrupts */
+
+	return;
 
 }
 
@@ -50,7 +54,7 @@ ISR (TIMER1_COMPA_vect) { /* interrupt a cada 1ms */
 
 	watchdog++; /* incrementar o contador */
 
-	if (watchdog >= 1000) { /* Se ja contou 1000 tickets ou seja 1 segundo */
+	if (1000 <= watchdog) { /* Se ja contou 1000 tickets ou seja 1 segundo */
 
 		watchdog_flag = 1; /* ativar watchdog */
 
@@ -61,6 +65,8 @@ ISR (TIMER1_COMPA_vect) { /* interrupt a cada 1ms */
 		return;
 
 	}
+
+	return;
 }
 
 void reset_watchdog(void) {
@@ -74,27 +80,28 @@ void reset_watchdog(void) {
 
 void RS485_sendByte(uint8_t temp) {
 
-	while ((UCSR0A & (1 << UDRE0)) == 0); /* Wait for empty transmit buffer */
+	while (0 == (UCSR0A & (1 << UDRE0))); /* Wait for empty transmit buffer */
 
 	UDR0 = temp; /* Put data into buffer, sends the data */
 
 	UCSR0A |= (1 << TXC0);
 
-	while ((UCSR0A & (1 << TXC0)) == 0);/* espera até ter enviado o byte */
+	while (0 == (UCSR0A & (1 << TXC0)));/* espera até ter enviado o byte */
+
+	return;
 }
 
 char RS485_receiveByte(void) {
 
 	reset_watchdog();	/* Reiniciar watchdog para o usar */
 
-	while ((UCSR0A & (1 << RXC0)) == 0) {	/* Wait for data to be received */
+	while (0 == (UCSR0A & (1 << RXC0))) {	/* Wait for data to be received */
 
 		if (1 == watchdog_flag) {	/* Se o watchdog tiver ativado, considerar que o slave nao esta operacional */
 
 			return watchdog_timeout;
 
 		}
-		/* Else não necessário */
 	}
 
 	return UDR0;/* Get and return received data from buffer */
