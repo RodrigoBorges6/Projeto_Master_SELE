@@ -86,12 +86,6 @@ int main(void) {
 
 	init();
 
-
-	/* Teste memória */
-
-	memory_test();
-
-
 	/* Modo configuração */
 
 	if(0 == (PINB & (1 << Conf_buttom))){ /* Se botão estiver pressionado */
@@ -99,6 +93,10 @@ int main(void) {
 		configuration_mode();
 
 	}
+
+	/* Teste memória */
+
+	memory_test();
 
 	/* Atualizar variaveis com a EEPROM */
 
@@ -190,240 +188,249 @@ void configuration_mode(void) {
 	LED_Amarelo_ON;
 	LED_Verde_ON;
 
-	write_string("\r\nMODO DE PROGRAMACAO\r\n");
-	write_string("Escolher modo de operacao:\r\n"
-			"1 - Modo de configuracao de slaves\r\n"
-			"2 - Modo de configuracao da lotacao do parque\r\n"
-			"3 - Configuracao atual\r\n"
-			"4 - Informacoes Master\r\n");
+	while(1){
 
-	do {
-		write_string("\r\n -> Modo: ");
-
-		while (0 == (read_string(str))){
-			;
-		}
-		mode = strtol(str, &ptr, 10);
-
-		if ((1 != mode) && (2 != mode) && (3 != mode) && (4 != mode)) {
-			write_string("Modo de configuracao invalido!\r\n");
-		}
-	} while ((1 != mode) && (2 != mode) && (3 != mode) && (4 != mode));
-
-
-	switch (mode) {
-
-	case 1: /*Modo de configuracao de slaves*/
-
-		write_string(
-				"\r\nNumero de slaves pretendidos (minimo de 1 e maximo de 3): ");
+		write_string("\r\nMODO DE PROGRAMACAO\r\n");
+		write_string("Escolher modo de operacao:\r\n"
+				"1 - Modo de configuracao de slaves\r\n"
+				"2 - Modo de configuracao da lotacao do parque\r\n"
+				"3 - Configuracao atual\r\n"
+				"4 - Informacoes Master\r\n"
+				"5 - Sair do modo de configuracao\r\n");
 
 		do {
+			write_string("\r\n -> Modo: ");
+
 			while (0 == (read_string(str))){
 				;
 			}
+			mode = strtol(str, &ptr, 10);
 
-			aux_num_slaves = strtol(str, &ptr, 10);
-
-			if ((1 != aux_num_slaves) && (2 != aux_num_slaves) && (3 != aux_num_slaves)) {
-				write_string("\r\nNumero de slaves invalido! ");
+			if ((1 != mode) && (2 != mode) && (3 != mode) && (4 != mode) && (5 != mode)) {
+				write_string("Modo de configuracao invalido!\r\n");
 			}
-		} while ((1 != aux_num_slaves) && (2 != aux_num_slaves) && (3 != aux_num_slaves));
+		} while ((1 != mode) && (2 != mode) && (3 != mode) && (4 != mode) && (5 != mode));
 
-		eeprom_update_byte(&num_of_slaves, aux_num_slaves);
+		switch (mode) {
 
-		switch (aux_num_slaves) {
+		case 1: /*Modo de configuracao de slaves*/
 
-		case 1:
-
-			write_string("\r\nEndereco do slave (valor entre 1 e 256): ");
+			write_string(
+					"\r\nNumero de slaves pretendidos (minimo de 1 e maximo de 3): ");
 
 			do {
 				while (0 == (read_string(str))){
 					;
 				}
 
-				aux_slave_address = strtol(str, &ptr, 10);
+				aux_num_slaves = strtol(str, &ptr, 10);
 
-				if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
-					write_string("\r\nEndereco invalido! ");
+				if ((1 != aux_num_slaves) && (2 != aux_num_slaves) && (3 != aux_num_slaves)) {
+					write_string("\r\nNumero de slaves invalido! ");
 				}
+			} while ((1 != aux_num_slaves) && (2 != aux_num_slaves) && (3 != aux_num_slaves));
 
-			} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
+			eeprom_update_byte(&num_of_slaves, aux_num_slaves);
 
-			eeprom_update_byte(&address_of_slaves[0], aux_slave_address);
-			eeprom_update_byte(&address_of_slaves[1], 0x00);
-			eeprom_update_byte(&address_of_slaves[2], 0x00);
-			write_string("\r\nConfiguracao do slave concluida com sucesso!!\r\n");
+			switch (aux_num_slaves) {
+
+			case 1:
+
+				write_string("\r\nEndereco do slave (valor entre 1 e 256): ");
+
+				do {
+					while (0 == (read_string(str))){
+						;
+					}
+
+					aux_slave_address = strtol(str, &ptr, 10);
+
+					if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
+						write_string("\r\nEndereco invalido! ");
+					}
+
+				} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
+
+				eeprom_update_byte(&address_of_slaves[0], aux_slave_address);
+				eeprom_update_byte(&address_of_slaves[1], 0x00);
+				eeprom_update_byte(&address_of_slaves[2], 0x00);
+				write_string("\r\nConfiguracao do slave concluida com sucesso!!\r\n");
+				break;
+
+			case 2:
+
+				write_string("\r\nEndereco do primeiro slave (valor entre 1 e 256): ");
+
+				do {
+					while (0 == (read_string(str))){
+						;
+					}
+
+					aux_slave_address = strtol(str, &ptr, 10);
+
+					if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
+						write_string("\r\nEndereco invalido! ");
+					}
+
+				} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
+
+				eeprom_update_byte(&address_of_slaves[0], aux_slave_address);
+
+				write_string("\r\nEndereco do segundo slave (valor entre 1 e 256): ");
+
+				do {
+					while (0 == (read_string(str))){
+						;
+					}
+
+					aux_slave_address = strtol(str, &ptr, 10);
+
+					if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
+						write_string("\r\nEndereco invalido! ");
+					}
+
+				} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
+
+				eeprom_update_byte(&address_of_slaves[1], aux_slave_address);
+				eeprom_update_byte(&address_of_slaves[2], 0x00);
+				write_string("\r\nConfiguracao dos 2 slaves concluida com sucesso!!\r\n");
+				break;
+
+			case 3:
+
+				write_string("\r\nEndereco do primeiro slave (valor entre 1 e 256): ");
+
+				do {
+					while (0 == (read_string(str))){
+						;
+					}
+
+					aux_slave_address = strtol(str, &ptr, 10);
+
+					if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
+						write_string("\r\nEndereco invalido! ");
+					}
+
+				} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
+
+				eeprom_update_byte(&address_of_slaves[0], aux_slave_address);
+
+				write_string("\r\nEndereco do segundo slave (valor entre 1 e 256): ");
+
+				do {
+					while (0 == (read_string(str))){
+						;
+					}
+
+					aux_slave_address = strtol(str, &ptr, 10);
+
+					if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
+						write_string("\r\nEndereco invalido! ");
+					}
+
+				} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
+
+				eeprom_update_byte(&address_of_slaves[1], aux_slave_address);
+
+				write_string("\r\nEndereco do terceiro slave (valor entre 1 e 256): ");
+
+				do {
+					while (0 == (read_string(str))){
+						;
+					}
+
+					aux_slave_address = strtol(str, &ptr, 10);
+
+					if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
+						write_string("\r\nEndereco invalido! ");
+					}
+
+				} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
+
+				eeprom_update_byte(&address_of_slaves[2], aux_slave_address);
+				write_string("\r\nConfiguracao dos 3 slaves concluida com sucesso!!\r\n");
+				break;
+
+			default:
+
+				write_string("\r\nERRO ERRO ERRO!!!!!!!\r\n");
+				break;
+
+			}
 			break;
 
-		case 2:
+			case 2: /*Modo de configuracao da lotacao do parque*/
 
-			write_string("\r\nEndereco do primeiro slave (valor entre 1 e 256): ");
+				write_string("\r\n******Configuracao da Lotacao Maxima******\r\n");
 
-			do {
-				while (0 == (read_string(str))){
-					;
-				}
+				write_string("Valor da lotacao maxima pretendida (minimo de 0 e maximo de 200): ");
 
-				aux_slave_address = strtol(str, &ptr, 10);
+				do {
+					while (0 == (read_string(str))){
+						;
+					}
 
-				if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
-					write_string("\r\nEndereco invalido! ");
-				}
+					aux_max_capacity = strtol(str, &ptr, 10);
 
-			} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
+					if (0 == ((0 <= aux_max_capacity) && (200 >= aux_max_capacity))) {
+						write_string("\r\nCapacidade invalida! ");
+					}
 
-			eeprom_update_byte(&address_of_slaves[0], aux_slave_address);
+				} while (0 == ((0 <= aux_max_capacity) && (200 >= aux_max_capacity)));
 
-			write_string("\r\nEndereco do segundo slave (valor entre 1 e 256): ");
+				eeprom_update_byte(&max_capacity, aux_max_capacity);
 
-			do {
-				while (0 == (read_string(str))){
-					;
-				}
+				write_string("\r\n*****Fim da configuracao de lotacao maxima***** \r\n");
 
-				aux_slave_address = strtol(str, &ptr, 10);
+				break;
 
-				if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
-					write_string("\r\nEndereco invalido! ");
-				}
+			case 3: /*Configuracao atual*/
 
-			} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
+				write_string("\r\n**********Configuracao Atual**********\r\n\r\n");
 
-			eeprom_update_byte(&address_of_slaves[1], aux_slave_address);
-			eeprom_update_byte(&address_of_slaves[2], 0x00);
-			write_string("\r\nConfiguracao dos 2 slaves concluida com sucesso!!\r\n");
-			break;
+				aux_max_capacity = eeprom_read_byte(&max_capacity);
 
-		case 3:
+				write_string("Lotacao maxima atual: ");
 
-			write_string("\r\nEndereco do primeiro slave (valor entre 1 e 256): ");
+				print_value(aux_max_capacity);
+				write_string("\r\n");
 
-			do {
-				while (0 == (read_string(str))){
-					;
-				}
+				aux_num_slaves = eeprom_read_byte(&num_of_slaves);
 
-				aux_slave_address = strtol(str, &ptr, 10);
+				write_string("Numero de slaves: ");
 
-				if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
-					write_string("\r\nEndereco invalido! ");
-				}
+				print_value(aux_num_slaves);
+				write_string("\r\n");
 
-			} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
+				print_address(aux_num_slaves);
 
-			eeprom_update_byte(&address_of_slaves[0], aux_slave_address);
+				write_string("\r\n******Fim da Configuracao Atual******\r\n");
+				break;
 
-			write_string("\r\nEndereco do segundo slave (valor entre 1 e 256): ");
+			case 4: /*Informações Master*/
 
-			do {
-				while (0 == (read_string(str))){
-					;
-				}
+				write_string("\r\n******************Informacoes Master******************\r\n");
+				write_string("\r\n*                   Serial Number: 123456789                 *\r\n");
+				write_string("\r\n*        Data de fabrico: 15 de Dezembro de 2017     *\r\n");
+				write_string("\r\n*              Local de fabrico: DEEC @ FEUP            *\r\n");
+				write_string("\r\n* Developers: Pedro Rodrigues & Rodrigo Borges *\r\n");
+				write_string("\r\n**********************************************************\r\n");
+				break;
 
-				aux_slave_address = strtol(str, &ptr, 10);
+			case 5:
 
-				if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
-					write_string("\r\nEndereco invalido! ");
-				}
+				write_string("\r\n ************** A sair do modo de configuracao**************\r\n");
+				return;
+				break;
 
-			} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
-
-			eeprom_update_byte(&address_of_slaves[1], aux_slave_address);
-
-			write_string("\r\nEndereco do terceiro slave (valor entre 1 e 256): ");
-
-			do {
-				while (0 == (read_string(str))){
-					;
-				}
-
-				aux_slave_address = strtol(str, &ptr, 10);
-
-				if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
-					write_string("\r\nEndereco invalido! ");
-				}
-
-			} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
-
-			eeprom_update_byte(&address_of_slaves[2], aux_slave_address);
-			write_string("\r\nConfiguracao dos 3 slaves concluida com sucesso!!\r\n");
-			break;
-
-		default:
-
-			write_string("\r\nERRO ERRO ERRO!!!!!!!\r\n");
-			break;
+			default:
+				write_string("\r\n ERRO ERRO ERRO ERRO \r\n");
+				break;
 
 		}
-		break;
-
-	case 2: /*Modo de configuracao da lotacao do parque*/
-
-		write_string("\r\n******Configuracao da Lotacao Maxima******\r\n");
-
-		write_string("Valor da lotacao maxima pretendida (minimo de 0 e maximo de 200): ");
-
-		do {
-				while (0 == (read_string(str))){
-					;
-				}
-
-				aux_max_capacity = strtol(str, &ptr, 10);
-
-				if (0 == ((0 <= aux_max_capacity) && (200 >= aux_max_capacity))) {
-					write_string("\r\nCapacidade invalida! ");
-				}
-
-			} while (0 == ((0 <= aux_max_capacity) && (200 >= aux_max_capacity)));
-
-		eeprom_update_byte(&max_capacity, aux_max_capacity);
-
-		write_string("\r\n*****Fim da configuracao de lotacao maxima!***** \r\n");
-
-		break;
-
-	case 3: /*Configuracao atual*/
-
-		write_string("\r\n**********Configuracao Atual**********\r\n\r\n");
-
-		aux_max_capacity = eeprom_read_byte(&max_capacity);
-
-		write_string("Lotacao maxima atual: ");
-
-		print_value(aux_max_capacity);
-		write_string("\r\n");
-
-		aux_num_slaves = eeprom_read_byte(&num_of_slaves);
-
-		write_string("Numero de slaves: ");
-
-		print_value(aux_num_slaves);
-		write_string("\r\n");
-
-		print_address(aux_num_slaves);
-
-		write_string("\r\n******Fim da Configuracao Atual******\r\n");
-		break;
-
-	case 4: /*Informações Master*/
-
-		write_string("\r\n******************Informacoes Master******************\r\n");
-		write_string("\r\n*                   Serial Number: 123456789                 *\r\n");
-		write_string("\r\n*        Data de fabrico: 2 de Dezembro de 2017     *\r\n");
-		write_string("\r\n*              Local de fabrico: DEEC @ FEUP            *\r\n");
-		write_string("\r\n* Developers: Pedro Rodrigues & Rodrigo Borges *\r\n");
-		write_string("\r\n**********************************************************\r\n");
-		break;
-
-	default:
-		write_string("\r\n ERRO ERRO ERRO ERRO \r\n");
-		break;
-
 	}
-
 	return;
+
 }
 
 void print_address(uint8_t aux_num_slaves){

@@ -13,7 +13,7 @@
 
 uint16_t EEMEM hash_flash, assinatura;
 
-static uint8_t classb_buffer[SEC_SIZE]/* __attribute__ ((section (".classb_sram_buffer")))*/;
+static uint8_t buffer[SEC_SIZE]/* __attribute__ ((section (".classb_sram_buffer")))*/;
 
 uint8_t flash_test(void){
 
@@ -50,7 +50,7 @@ uint8_t sram_test(){
 
 	for(current_section = 0; current_section < NSECS; current_section++) {
 
-		if (1 == (marchC_minus( (uint8_t *) INTERNAL_SRAM_START + current_section * SEC_SIZE, classb_buffer, SEC_SIZE))){
+		if (1 == (marchC_minus( (uint8_t *) INTERNAL_SRAM_START + current_section * SEC_SIZE, buffer, SEC_SIZE))){
 
 			return 1;
 

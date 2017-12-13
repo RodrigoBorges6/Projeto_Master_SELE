@@ -30,6 +30,6 @@ char get_char(void);
 
 /*retorna 1 quando acaba da ler uma string, 0 se ainda não acabou de ler*/
 /*a fim da leitura e detetado quando é lido a caracter \n ou \r*/
-int read_string(char *str);
+uint8_t read_string(char *str);
 
 #endif /* SERIAL_PORT_H_ */

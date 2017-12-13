@@ -48,7 +48,7 @@ void write_string(char *str) {
 	return;
 }
 
-int read_string(char *c) {
+uint8_t read_string(char *c) {
 
 	char p = 0;
 	static int pos = 0;
