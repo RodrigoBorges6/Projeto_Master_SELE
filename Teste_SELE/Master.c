@@ -15,14 +15,14 @@
 
 
 #define LED_Vermelho PB3
-#define LED_Vermelho_ON PORTB |= (1 << LED_Vermelho);
-#define LED_Vermelho_OFF PORTB &= ~(1 << LED_Vermelho);
+#define LED_Vermelho_OFF PORTB |= (1 << LED_Vermelho);
+#define LED_Vermelho_ON PORTB &= ~(1 << LED_Vermelho);
 #define LED_Amarelo PB4
-#define LED_Amarelo_ON PORTB |= (1 << LED_Amarelo);
-#define LED_Amarelo_OFF PORTB &= ~(1 << LED_Amarelo);
+#define LED_Amarelo_OFF PORTB |= (1 << LED_Amarelo);
+#define LED_Amarelo_ON PORTB &= ~(1 << LED_Amarelo);
 #define LED_Verde PB5
-#define LED_Verde_ON PORTB |= (1 << LED_Verde);
-#define LED_Verde_OFF PORTB &= ~(1 << LED_Verde);
+#define LED_Verde_OFF PORTB |= (1 << LED_Verde);
+#define LED_Verde_ON PORTB &= ~(1 << LED_Verde);
 
 
 #define STATE_ADDR_SEND 0
@@ -86,6 +86,11 @@ int main(void) {
 
 	init();
 
+	LED_Vermelho_ON;
+	LED_Amarelo_ON;
+	LED_Verde_OFF;
+	while(1);
+
 	/* Modo configuração */
 
 	if(0 == (PINB & (1 << Conf_buttom))){ /* Se botão estiver pressionado */
@@ -133,7 +138,7 @@ void init (void){
 
 void init_io(void) {
 
-	/* Declarar LEDs como entradas */
+	/* Declarar LEDs como saídas */
 
 	DDRB |= (1 << LED_Vermelho);
 	DDRB |= (1 << LED_Amarelo);
