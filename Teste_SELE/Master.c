@@ -80,8 +80,8 @@ int main(void) {
 	uint8_t n_slaves = 3;	/* Default para a variável */
 	uint8_t cont_slaves_desligados = 0; /* contador do número de slaves not alive */
 
-	uint8_t id_slave_sistema[255]; /* Iniciar a variável */
-	uint8_t id_slave_alive[255]; /* Iniciar a variável */
+	uint8_t id_slave_sistema[256]; /* Iniciar a variável */
+	uint8_t id_slave_alive[256]; /* Iniciar a variável */
 
 	for(aux = 0; aux < 256 ; aux++){
 
@@ -576,7 +576,13 @@ void state_machine (uint8_t lotacao_MAX, uint8_t n_slaves, uint8_t cont_slaves_d
 
 	int8_t lotacao_atual = 0;
 	uint8_t lotacao_atual_percentagem = 0;
-	int8_t valor_contador_slave[2] = { 0, 0};
+	int8_t valor_contador_slave[256];
+
+	for(aux = 0; aux < 256 ; aux++){
+
+		valor_contador_slave[aux] = 0;
+
+	}
 
 	/* Máquina de estados */
 
