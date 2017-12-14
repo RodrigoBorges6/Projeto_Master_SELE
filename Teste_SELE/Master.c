@@ -15,14 +15,14 @@
 
 
 #define LED_Vermelho PB3
-#define LED_Vermelho_ON PORTB |= (1 << LED_Vermelho);
-#define LED_Vermelho_OFF PORTB &= ~(1 << LED_Vermelho);
+#define LED_Vermelho_OFF PORTB |= (1 << LED_Vermelho);
+#define LED_Vermelho_ON PORTB &= ~(1 << LED_Vermelho);
 #define LED_Amarelo PB4
-#define LED_Amarelo_ON PORTB |= (1 << LED_Amarelo);
-#define LED_Amarelo_OFF PORTB &= ~(1 << LED_Amarelo);
+#define LED_Amarelo_OFF PORTB |= (1 << LED_Amarelo);
+#define LED_Amarelo_ON PORTB &= ~(1 << LED_Amarelo);
 #define LED_Verde PB5
-#define LED_Verde_ON PORTB |= (1 << LED_Verde);
-#define LED_Verde_OFF PORTB &= ~(1 << LED_Verde);
+#define LED_Verde_OFF PORTB |= (1 << LED_Verde);
+#define LED_Verde_ON PORTB &= ~(1 << LED_Verde);
 
 
 #define STATE_ADDR_SEND 0
@@ -74,12 +74,20 @@ uint8_t send_Lotacao(uint8_t semaforo);
 int main(void) {
 
 
+	uint8_t aux = 0; /*variavel auxiliar dos ciclos for */
+
 	uint8_t lotacao_MAX = 6;   /* Default para a variável */
 	uint8_t n_slaves = 3;	/* Default para a variável */
 	uint8_t cont_slaves_desligados = 0; /* contador do número de slaves not alive */
 
-	uint8_t id_slave_sistema[2] = { 0x01, 0x02}; /* Default para a variável */
-	uint8_t id_slave_alive[2] = { 0x99, 0x99}; /* Default para a variável */
+	uint8_t id_slave_sistema[255]; /* Iniciar a variável */
+	uint8_t id_slave_alive[255]; /* Iniciar a variável */
+
+	for(aux = 0; aux < 256 ; aux++){
+
+		id_slave_sistema[aux] = 0;
+		id_slave_alive[aux] = 0;
+	}
 
 
 	/* Inicialização */
@@ -97,6 +105,7 @@ int main(void) {
 	/* Teste memória */
 
 	memory_test();
+
 
 	/* Atualizar variaveis com a EEPROM */
 
@@ -133,7 +142,7 @@ void init (void){
 
 void init_io(void) {
 
-	/* Declarar LEDs como entradas */
+	/* Declarar LEDs como saidas */
 
 	DDRB |= (1 << LED_Vermelho);
 	DDRB |= (1 << LED_Amarelo);
@@ -567,7 +576,13 @@ void state_machine (uint8_t lotacao_MAX, uint8_t n_slaves, uint8_t cont_slaves_d
 
 	int8_t lotacao_atual = 0;
 	uint8_t lotacao_atual_percentagem = 0;
-	int8_t valor_contador_slave[2] = { 0, 0};
+	int8_t valor_contador_slave[255];
+
+	for(aux = 0 ; aux < 256 ; aux++){
+
+		valor_contador_slave[aux] = 0;
+
+	}
 
 	/* Máquina de estados */
 
