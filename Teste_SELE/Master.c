@@ -74,22 +74,25 @@ uint8_t send_Lotacao(uint8_t semaforo);
 int main(void) {
 
 
+	uint8_t aux = 0; /*variavel auxiliar dos ciclos for */
+
 	uint8_t lotacao_MAX = 6;   /* Default para a variável */
 	uint8_t n_slaves = 3;	/* Default para a variável */
 	uint8_t cont_slaves_desligados = 0; /* contador do número de slaves not alive */
 
-	uint8_t id_slave_sistema[2] = { 0x01, 0x02}; /* Default para a variável */
-	uint8_t id_slave_alive[2] = { 0x99, 0x99}; /* Default para a variável */
+	uint8_t id_slave_sistema[255]; /* Iniciar a variável */
+	uint8_t id_slave_alive[255]; /* Iniciar a variável */
+
+	for(aux = 0; aux < 256 ; aux++){
+
+		id_slave_sistema[aux] = 0;
+		id_slave_alive[aux] = 0;
+	}
 
 
 	/* Inicialização */
 
 	init();
-
-	LED_Vermelho_ON;
-	LED_Amarelo_ON;
-	LED_Verde_OFF;
-	while(1);
 
 	/* Modo configuração */
 
@@ -102,6 +105,7 @@ int main(void) {
 	/* Teste memória */
 
 	memory_test();
+
 
 	/* Atualizar variaveis com a EEPROM */
 
