@@ -30,7 +30,7 @@
 #define STATE_CALC_SEND 2
 
 
-uint8_t EEMEM max_capacity, num_of_slaves, address_of_slaves[3]; /* Variaveis da EEPROM */
+uint8_t EEMEM max_capacity, num_of_slaves, address_of_slaves[255]; /* Variaveis da EEPROM */
 
 
 /* Declarar funcoes */
@@ -63,7 +63,7 @@ void check_routine(uint8_t n_slaves, uint8_t *id_slave_sistema, uint8_t *id_slav
 uint8_t check_slave(uint8_t n_slave);
 
 /* Maquina de estados */
-void state_machine (uint8_t locacao_MAX, uint8_t n_slaves, uint8_t cont_slaves_desligados, uint8_t id_slave_sistema[2], uint8_t id_slave_alive[2]);
+void state_machine (uint8_t locacao_MAX, uint8_t n_slaves, uint8_t *cont_slaves_desligados, uint8_t *id_slave_sistema, uint8_t *id_slave_alive);
 
 /* Enviar lotacao ao slave */
 uint8_t send_Lotacao(uint8_t semaforo);
@@ -74,21 +74,22 @@ uint8_t send_Lotacao(uint8_t semaforo);
 int main(void) {
 
 
-	uint8_t aux = 0; /*variavel auxiliar dos ciclos for */
+	uint16_t aux = 0; /*variavel auxiliar dos ciclos for */
 
-	uint8_t lotacao_MAX = 6;   /* Default para a variável */
-	uint8_t n_slaves = 3;	/* Default para a variável */
+	uint8_t lotacao_MAX = 0;   /* Iniciar a variável */
+	uint8_t n_slaves = 0;	/* INiciar a variável */
 	uint8_t cont_slaves_desligados = 0; /* contador do número de slaves not alive */
 
-	uint8_t id_slave_sistema[256]; /* Iniciar a variável */
-	uint8_t id_slave_alive[256]; /* Iniciar a variável */
+	uint8_t id_slave_sistema[200]; /* Iniciar a variável */
+	uint8_t id_slave_alive[200]; /* Iniciar a variável */
 
-	for(aux = 0; aux < 256 ; aux++){
+
+	for(aux = 0; aux < 200 ; aux++){
 
 		id_slave_sistema[aux] = 0;
 		id_slave_alive[aux] = 0;
-	}
 
+	}
 
 	/* Inicialização */
 
@@ -104,13 +105,12 @@ int main(void) {
 
 	/* Teste memória */
 
-	memory_test();
+	//memory_test();
 
 
 	/* Atualizar variaveis com a EEPROM */
 
 	update_via_EEPROM(&lotacao_MAX, &n_slaves, id_slave_sistema, id_slave_alive);
-
 
 	/* Rotina de checkar os slaves */
 
@@ -118,7 +118,7 @@ int main(void) {
 
 	/* State Machine */
 
-	state_machine (lotacao_MAX, n_slaves, cont_slaves_desligados, id_slave_sistema, id_slave_alive);
+	state_machine (lotacao_MAX, n_slaves, &cont_slaves_desligados, id_slave_sistema, id_slave_alive);
 
 
 	/* end main */
@@ -150,6 +150,10 @@ void init_io(void) {
 
 	DDRB &= ~(1 << Conf_buttom); /* declarar botao como uma entrada */
 	PORTB |= (1 << Conf_buttom); /* pull up */
+
+	LED_Verde_OFF;
+	LED_Amarelo_OFF;
+	LED_Vermelho_OFF;
 
 	return;
 }
@@ -192,6 +196,7 @@ void configuration_mode(void) {
 	char str[10], *ptr;
 	uint8_t mode = 0, aux_num_slaves = 0;
 	uint8_t aux_slave_address = 0, aux_max_capacity = 0;
+	uint16_t aux = 0;
 
 	LED_Vermelho_ON;
 	LED_Amarelo_ON;
@@ -225,7 +230,7 @@ void configuration_mode(void) {
 		case 1: /*Modo de configuracao de slaves*/
 
 			write_string(
-					"\r\nNumero de slaves pretendidos (minimo de 1 e maximo de 3): ");
+					"\r\nNumero de slaves pretendidos (minimo de 1 e maximo de 255): ");
 
 			do {
 				while (0 == (read_string(str))){
@@ -234,18 +239,16 @@ void configuration_mode(void) {
 
 				aux_num_slaves = strtol(str, &ptr, 10);
 
-				if ((1 != aux_num_slaves) && (2 != aux_num_slaves) && (3 != aux_num_slaves)) {
+				if (0 == ((1 <= aux_num_slaves) && (255 >= aux_num_slaves))) {
 					write_string("\r\nNumero de slaves invalido! ");
 				}
-			} while ((1 != aux_num_slaves) && (2 != aux_num_slaves) && (3 != aux_num_slaves));
+			} while (0 == ((1 <= aux_num_slaves) && (255 >= aux_num_slaves)));
 
 			eeprom_update_byte(&num_of_slaves, aux_num_slaves);
 
-			switch (aux_num_slaves) {
+			for(aux = 0; aux < aux_num_slaves; aux++){
 
-			case 1:
-
-				write_string("\r\nEndereco do slave (valor entre 1 e 256): ");
+				write_string("\r\nEndereco do slave (valor entre 1 e 255): ");
 
 				do {
 					while (0 == (read_string(str))){
@@ -254,119 +257,20 @@ void configuration_mode(void) {
 
 					aux_slave_address = strtol(str, &ptr, 10);
 
-					if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
+					if (0 == ((1 <= aux_slave_address) && (255 >= aux_slave_address))) {
 						write_string("\r\nEndereco invalido! ");
 					}
 
-				} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
+				} while (0 == ((1 <= aux_slave_address) && (255 >= aux_slave_address)));
 
-				eeprom_update_byte(&address_of_slaves[0], aux_slave_address);
-				eeprom_update_byte(&address_of_slaves[1], 0x00);
-				eeprom_update_byte(&address_of_slaves[2], 0x00);
-				write_string("\r\nConfiguracao do slave concluida com sucesso!!\r\n");
-				break;
-
-			case 2:
-
-				write_string("\r\nEndereco do primeiro slave (valor entre 1 e 256): ");
-
-				do {
-					while (0 == (read_string(str))){
-						;
-					}
-
-					aux_slave_address = strtol(str, &ptr, 10);
-
-					if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
-						write_string("\r\nEndereco invalido! ");
-					}
-
-				} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
-
-				eeprom_update_byte(&address_of_slaves[0], aux_slave_address);
-
-				write_string("\r\nEndereco do segundo slave (valor entre 1 e 256): ");
-
-				do {
-					while (0 == (read_string(str))){
-						;
-					}
-
-					aux_slave_address = strtol(str, &ptr, 10);
-
-					if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
-						write_string("\r\nEndereco invalido! ");
-					}
-
-				} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
-
-				eeprom_update_byte(&address_of_slaves[1], aux_slave_address);
-				eeprom_update_byte(&address_of_slaves[2], 0x00);
-				write_string("\r\nConfiguracao dos 2 slaves concluida com sucesso!!\r\n");
-				break;
-
-			case 3:
-
-				write_string("\r\nEndereco do primeiro slave (valor entre 1 e 256): ");
-
-				do {
-					while (0 == (read_string(str))){
-						;
-					}
-
-					aux_slave_address = strtol(str, &ptr, 10);
-
-					if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
-						write_string("\r\nEndereco invalido! ");
-					}
-
-				} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
-
-				eeprom_update_byte(&address_of_slaves[0], aux_slave_address);
-
-				write_string("\r\nEndereco do segundo slave (valor entre 1 e 256): ");
-
-				do {
-					while (0 == (read_string(str))){
-						;
-					}
-
-					aux_slave_address = strtol(str, &ptr, 10);
-
-					if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
-						write_string("\r\nEndereco invalido! ");
-					}
-
-				} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
-
-				eeprom_update_byte(&address_of_slaves[1], aux_slave_address);
-
-				write_string("\r\nEndereco do terceiro slave (valor entre 1 e 256): ");
-
-				do {
-					while (0 == (read_string(str))){
-						;
-					}
-
-					aux_slave_address = strtol(str, &ptr, 10);
-
-					if (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address))) {
-						write_string("\r\nEndereco invalido! ");
-					}
-
-				} while (0 == ((1 <= aux_slave_address) && (256 >= aux_slave_address)));
-
-				eeprom_update_byte(&address_of_slaves[2], aux_slave_address);
-				write_string("\r\nConfiguracao dos 3 slaves concluida com sucesso!!\r\n");
-				break;
-
-			default:
-
-				write_string("\r\nERRO ERRO ERRO!!!!!!!\r\n");
-				break;
+				eeprom_update_byte(&address_of_slaves[aux], aux_slave_address);
 
 			}
+
+			write_string("\r\n*****Configuracao dos slaves concluida com sucesso!!*****\r\n");
+
 			break;
+
 
 			case 2: /*Modo de configuracao da lotacao do parque*/
 
@@ -504,6 +408,7 @@ void update_via_EEPROM (uint8_t *lotacao_MAX, uint8_t *n_slaves, uint8_t *id_sla
 	uint8_t aux = 0; /*variavel auxiliar dos ciclos for */
 
 	*n_slaves = eeprom_read_byte(&num_of_slaves);
+
 	*lotacao_MAX = eeprom_read_byte(&max_capacity);
 
 	for(aux = 0; aux < *n_slaves; aux++){
@@ -512,6 +417,7 @@ void update_via_EEPROM (uint8_t *lotacao_MAX, uint8_t *n_slaves, uint8_t *id_sla
 
 	}
 
+
 	return;
 }
 
@@ -519,16 +425,16 @@ void check_routine(uint8_t n_slaves, uint8_t *id_slave_sistema, uint8_t *id_slav
 
 
 	/*variavel auxiliar dos ciclos for */
-	uint8_t aux = 0;
+	uint16_t aux = 0;
 
 	/* Rotina de checkar os slaves */
+
 
 	for (aux = 0; aux < n_slaves; aux++) {
 
 		if (0 == check_slave(id_slave_sistema[aux])) {
 
 			id_slave_alive[aux] = id_slave_sistema[aux];
-
 		}
 		else {
 
@@ -567,22 +473,24 @@ uint8_t check_slave(uint8_t n_slave) {
 	return 0;
 }
 
-void state_machine (uint8_t lotacao_MAX, uint8_t n_slaves, uint8_t cont_slaves_desligados, uint8_t *id_slave_sistema, uint8_t *id_slave_alive){
+void state_machine (uint8_t lotacao_MAX, uint8_t n_slaves, uint8_t *cont_slaves_desligados, uint8_t *id_slave_sistema, uint8_t *id_slave_alive){
 
 	uint8_t state = 0; /* variavel da state machine de comunicaçao */
-	uint8_t aux = 0; /*variavel auxiliar dos ciclos for */
+	uint16_t aux = 0; /*variavel auxiliar dos ciclos for */
 	uint8_t cont_SM = 0; /* contador incremental para percorrer os slaves, incrementado a cada ciclo da SM*/
 	int8_t byte = 0; /* variavel auxiliar para receber o byte enviado pelo slave */
 
 	int8_t lotacao_atual = 0;
 	uint8_t lotacao_atual_percentagem = 0;
-	int8_t valor_contador_slave[256];
+	int8_t valor_contador_slave[200];
 
-	for(aux = 0; aux < 256 ; aux++){
+
+	for(aux = 0; aux < 200 ; aux++){
 
 		valor_contador_slave[aux] = 0;
 
 	}
+
 
 	/* Máquina de estados */
 
@@ -591,6 +499,7 @@ void state_machine (uint8_t lotacao_MAX, uint8_t n_slaves, uint8_t cont_slaves_d
 		switch (state) {
 
 		case STATE_ADDR_SEND:
+
 
 			MAX485_Sending; /* Colocar pino de controlo a 1 -> MAX485 em sending mode */
 
@@ -602,11 +511,16 @@ void state_machine (uint8_t lotacao_MAX, uint8_t n_slaves, uint8_t cont_slaves_d
 
 			} else {
 
-				if (n_slaves == cont_slaves_desligados ) {	/* Se todos os slaves estiver nao operacionais */
+
+
+				if (n_slaves == *cont_slaves_desligados ) {	/* Se todos os slaves estiver nao operacionais */
 
 					LED_Vermelho_ON;
 					LED_Amarelo_ON;
 					LED_Verde_OFF;
+					while(1){
+						;
+					}
 					break;
 
 				} else {
@@ -614,6 +528,11 @@ void state_machine (uint8_t lotacao_MAX, uint8_t n_slaves, uint8_t cont_slaves_d
 					if (cont_SM < (n_slaves - 1)) { /* Se ainda nao tivermos percorrido todos os slaves */
 
 						cont_SM++;
+						if(cont_SM > 1){
+							LED_Amarelo_ON;
+							while(1);
+						}
+
 
 					} else { /* Se ja tivermos percorridos todos os slaves, recomeçar do 1º */
 
@@ -633,7 +552,7 @@ void state_machine (uint8_t lotacao_MAX, uint8_t n_slaves, uint8_t cont_slaves_d
 
 				id_slave_alive[cont_SM] = 0x00; /* Considerar que o slave não está operacional */
 
-				cont_slaves_desligados++; /* Incrementar o numero de slaves nao operacionais */
+				*cont_slaves_desligados = (*cont_slaves_desligados) + 1; /* Incrementar o numero de slaves nao operacionais */
 
 				state = STATE_ADDR_SEND;
 				break;
@@ -641,6 +560,7 @@ void state_machine (uint8_t lotacao_MAX, uint8_t n_slaves, uint8_t cont_slaves_d
 			} else {
 
 				valor_contador_slave[cont_SM] = byte; /* Se o slave estiver operacional, atualizo o seu contador */
+
 
 				state = STATE_CALC_SEND;
 				break;
@@ -676,7 +596,7 @@ void state_machine (uint8_t lotacao_MAX, uint8_t n_slaves, uint8_t cont_slaves_d
 
 					id_slave_alive[cont_SM] = 0x00; /* Eliminar o slave da lista de slaves operacionais */
 
-					cont_slaves_desligados++; /* Incrementar o numero de slaves nao operacionais */
+					*cont_slaves_desligados = (*cont_slaves_desligados) + 1; /* Incrementar o numero de slaves nao operacionais */
 
 					state = STATE_ADDR_SEND;
 					break;
@@ -710,7 +630,7 @@ void state_machine (uint8_t lotacao_MAX, uint8_t n_slaves, uint8_t cont_slaves_d
 
 					id_slave_alive[cont_SM] = 0x00;	/* Eliminar o slave da lista de slaves operacionais */
 
-					cont_slaves_desligados++; /* Incrementar o numero de slaves nao operacionais */
+					*cont_slaves_desligados = (*cont_slaves_desligados) + 1; /* Incrementar o numero de slaves nao operacionais */
 
 					state = STATE_ADDR_SEND;
 					break;
@@ -746,7 +666,7 @@ void state_machine (uint8_t lotacao_MAX, uint8_t n_slaves, uint8_t cont_slaves_d
 
 					id_slave_alive[cont_SM] = 0x00; /* Eliminar o slave da lista de slaves operacionais */
 
-					cont_slaves_desligados++; /* Incrementar o numero de slaves nao operacionais */
+					*cont_slaves_desligados = (*cont_slaves_desligados) + 1; /* Incrementar o numero de slaves nao operacionais */
 
 					state = STATE_ADDR_SEND;
 					break;

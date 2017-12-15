@@ -17,7 +17,7 @@
 #define ONES 0xFF
 #define ZEROS 0x00
 
-#define SIGNATURE_FLASH 12346
+#define SIGNATURE_FLASH 1234
 
 /*******************************************************************************************************************************
  * Testes de memória ClassB
