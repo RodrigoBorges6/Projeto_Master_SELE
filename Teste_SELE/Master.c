@@ -29,9 +29,8 @@
 #define STATE_CONT_RECEIVE 1
 #define STATE_CALC_SEND 2
 
-
-uint8_t EEMEM max_capacity, num_of_slaves, address_of_slaves[255]; /* Variaveis da EEPROM */
-
+uint8_t EEMEM num_of_slaves, address_of_slaves[200]; /* Variaveis da EEPROM */
+uint16_t EEMEM max_capacity;
 
 /* Declarar funcoes */
 
@@ -50,11 +49,14 @@ void print_address(uint8_t num_slaves);
 /*Permite a impressão de valores sem usar printf*/
 void print_value(uint8_t value);
 
+/*Permite a impressão de valores de 16 bits sem usar printf*/
+void print_value_word(uint16_t value);
+
 /* Memory test */
 void memory_test ();
 
 /* Atualizar variaveis com a EEPROM */
-void update_via_EEPROM (uint8_t *lotacao_MAX, uint8_t *n_slaves, uint8_t *id_slave_sistema, uint8_t *id_slave_alive);
+void update_via_EEPROM (uint16_t *lotacao_MAX, uint8_t *n_slaves, uint8_t *id_slave_sistema, uint8_t *id_slave_alive);
 
 /* Rotina para checkar os slaves */
 void check_routine(uint8_t n_slaves, uint8_t *id_slave_sistema, uint8_t *id_slave_alive, uint8_t *cont_slaves_desligados);
@@ -76,7 +78,7 @@ int main(void) {
 
 	uint16_t aux = 0; /*variavel auxiliar dos ciclos for */
 
-	uint8_t lotacao_MAX = 0;   /* Iniciar a variável */
+	uint16_t lotacao_MAX = 0;   /* Iniciar a variável */
 	uint8_t n_slaves = 0;	/* INiciar a variável */
 	uint8_t cont_slaves_desligados = 0; /* contador do número de slaves not alive */
 
@@ -105,7 +107,7 @@ int main(void) {
 
 	/* Teste memória */
 
-	//memory_test();
+	memory_test();
 
 
 	/* Atualizar variaveis com a EEPROM */
@@ -195,7 +197,8 @@ void configuration_mode(void) {
 
 	char str[10], *ptr;
 	uint8_t mode = 0, aux_num_slaves = 0;
-	uint8_t aux_slave_address = 0, aux_max_capacity = 0;
+	uint8_t aux_slave_address = 0;
+	uint16_t aux_max_capacity = 0;
 	uint16_t aux = 0;
 
 	LED_Vermelho_ON;
@@ -248,7 +251,7 @@ void configuration_mode(void) {
 
 			for(aux = 0; aux < aux_num_slaves; aux++){
 
-				write_string("\r\nEndereco do slave (valor entre 1 e 255): ");
+				write_string("\r\nEndereco do slave (valor entre 1 e 200): ");
 
 				do {
 					while (0 == (read_string(str))){
@@ -257,11 +260,11 @@ void configuration_mode(void) {
 
 					aux_slave_address = strtol(str, &ptr, 10);
 
-					if (0 == ((1 <= aux_slave_address) && (255 >= aux_slave_address))) {
+					if (0 == ((1 <= aux_slave_address) && (200 >= aux_slave_address))) {
 						write_string("\r\nEndereco invalido! ");
 					}
 
-				} while (0 == ((1 <= aux_slave_address) && (255 >= aux_slave_address)));
+				} while (0 == ((1 <= aux_slave_address) && (200 >= aux_slave_address)));
 
 				eeprom_update_byte(&address_of_slaves[aux], aux_slave_address);
 
@@ -276,7 +279,7 @@ void configuration_mode(void) {
 
 				write_string("\r\n******Configuracao da Lotacao Maxima******\r\n");
 
-				write_string("Valor da lotacao maxima pretendida (minimo de 0 e maximo de 200): ");
+				write_string("Valor da lotacao maxima pretendida (minimo de 0 e maximo de 65000): ");
 
 				do {
 					while (0 == (read_string(str))){
@@ -285,13 +288,13 @@ void configuration_mode(void) {
 
 					aux_max_capacity = strtol(str, &ptr, 10);
 
-					if (0 == ((0 <= aux_max_capacity) && (200 >= aux_max_capacity))) {
+					if (0 == ((0 <= aux_max_capacity) && (65000 >= aux_max_capacity))) {
 						write_string("\r\nCapacidade invalida! ");
 					}
 
-				} while (0 == ((0 <= aux_max_capacity) && (200 >= aux_max_capacity)));
+				} while (0 == ((0 <= aux_max_capacity) && (65000 >= aux_max_capacity)));
 
-				eeprom_update_byte(&max_capacity, aux_max_capacity);
+				eeprom_update_word(&max_capacity, aux_max_capacity);
 
 				write_string("\r\n*****Fim da configuracao de lotacao maxima***** \r\n");
 
@@ -301,11 +304,11 @@ void configuration_mode(void) {
 
 				write_string("\r\n**********Configuracao Atual**********\r\n\r\n");
 
-				aux_max_capacity = eeprom_read_byte(&max_capacity);
+				aux_max_capacity = eeprom_read_word(&max_capacity);
 
 				write_string("Lotacao maxima atual: ");
 
-				print_value(aux_max_capacity);
+				print_value_word(aux_max_capacity);
 				write_string("\r\n");
 
 				aux_num_slaves = eeprom_read_byte(&num_of_slaves);
@@ -401,7 +404,69 @@ void print_value(uint8_t value){
 	return;
 }
 
-void update_via_EEPROM (uint8_t *lotacao_MAX, uint8_t *n_slaves, uint8_t *id_slave_sistema, uint8_t *id_slave_alive){
+void print_value_word(uint16_t value){
+
+	uint16_t aux = 0;
+
+	if(9 >= value){
+
+		print_char(value + 48);
+		return;
+
+	}
+	else if(9 < value && 99 >= value){
+
+		aux = value / 10;
+		print_char(aux + 48);
+		aux = value % 10;
+		print_char(aux + 48);
+		return;
+
+	}
+	else if(99 < value && 999 >= value){
+
+		aux = value / 100;
+		print_char(aux + 48);
+		aux = (value % 100) / 10;
+		print_char(aux + 48);
+		aux = value % 10;
+		print_char(aux + 48);
+		return;
+
+	}
+	else if(999 < value && 9999 >= value){
+
+		aux = value / 1000;
+		print_char(aux + 48);
+		aux = (value % 1000) / 100;
+		print_char(aux + 48);
+		aux = (value % 100) / 10;
+		print_char(aux + 48);
+		aux = value % 10;
+		print_char(aux + 48);
+		return;
+
+	}
+	else if(9999 < value && 65500 >= value){
+
+		aux = value / 10000;
+		print_char(aux + 48);
+		aux = (value % 10000) / 1000;
+		print_char(aux + 48);
+		aux = (value % 1000) / 100;
+		print_char(aux + 48);
+		aux = (value % 100) / 10;
+		print_char(aux + 48);
+		aux = value % 10;
+		print_char(aux + 48);
+		return;
+
+	}
+
+	return;
+}
+
+void update_via_EEPROM (uint16_t *lotacao_MAX, uint8_t *n_slaves, uint8_t *id_slave_sistema, uint8_t *id_slave_alive){
 
 	/* Atualizar variaveis com a EEPROM */
 
@@ -409,7 +474,7 @@ void update_via_EEPROM (uint8_t *lotacao_MAX, uint8_t *n_slaves, uint8_t *id_sla
 
 	*n_slaves = eeprom_read_byte(&num_of_slaves);
 
-	*lotacao_MAX = eeprom_read_byte(&max_capacity);
+	*lotacao_MAX = eeprom_read_word(&max_capacity);
 
 	for(aux = 0; aux < *n_slaves; aux++){
 
@@ -480,7 +545,7 @@ void state_machine (uint8_t lotacao_MAX, uint8_t n_slaves, uint8_t *cont_slaves_
 	uint8_t cont_SM = 0; /* contador incremental para percorrer os slaves, incrementado a cada ciclo da SM*/
 	int8_t byte = 0; /* variavel auxiliar para receber o byte enviado pelo slave */
 
-	int8_t lotacao_atual = 0;
+	int16_t lotacao_atual = 0;
 	uint8_t lotacao_atual_percentagem = 0;
 	int8_t valor_contador_slave[200];
 

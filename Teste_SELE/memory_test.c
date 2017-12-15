@@ -13,7 +13,7 @@
 
 uint16_t EEMEM hash_flash, assinatura;
 
-static uint8_t buffer[SEC_SIZE]/* __attribute__ ((section (".classb_sram_buffer")))*/;
+static uint8_t buffer[SEC_SIZE] __attribute__ ((section (".sram_buffer")));
 
 uint8_t flash_test(void){
 
